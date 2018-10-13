@@ -19,22 +19,25 @@ wsServer.on("connection", function(socket, request) {
     var publicKey;
     
     console.log("client connected, sending random bytes : " + signBytes);
-    socket.send(JSON.stringify({signBytes : nacl.util.encodeBase64(signBytes)}));
+    socket.send(JSON.stringify({
+        msgType : "readData",
+        bytesToSign : nacl.util.encodeBase64(signBytes),
+    }));
+    
     socket.on("message", function (data) {
         var data = JSON.parse(data);
-        if (data.type == "publicKeySend") {
-            publicKey = nacl.util.decodeBase64(data.publicKey);
-            var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(data.signiture), publicKey);
-            if (!nacl.verify(signBytes, verifyBytes)) {
-                console.log("client failed verification, terminating session");
-                socket.terminate();
-                return;
-            }
-            console.log("client passed verification, public key : " + data.publicKey);
-        }
         
-        if (data.type == "message") {
-            
+        switch(data.msgType) {
+            case "sendPublicKey":
+                publicKey = nacl.util.decodeBase64(data.publicKey);
+                var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(data.bytesSigned), publicKey);
+                if (!nacl.verify(signBytes, verifyBytes)) {
+                    console.log("client failed verification, terminating session");
+                    socket.terminate();
+                    return;
+                }
+                console.log("client passed verification, public key : " + data.publicKey);
+                break;
         }
     });
 });

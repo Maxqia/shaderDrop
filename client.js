@@ -10,19 +10,46 @@ var pubKeyString = nacl.util.encodeBase64(keyPair.publicKey);
 console.log(pubKeyString);
 qrCode.generate(pubKeyString);
 
+
+var currentLobby;
+var currentLobbyMembers;
+
 conn.onopen = function (event) {
     console.log("server connected!")
 }
 
 conn.onmessage = function (event) {
     var data = JSON.parse(event.data);
-    if (data.signBytes) {
-        console.log(data.signBytes);
-        var signBytesArray = nacl.util.decodeBase64(data.signBytes);
-        var signiture = nacl.sign(nacl.util.decodeBase64(data.signBytes), keyPair.secretKey);
-        conn.send(JSON.stringify({ type : "publicKeySend",
-                    publicKey : nacl.util.encodeBase64(keyPair.publicKey),
-                    signiture : nacl.util.encodeBase64(signiture),
-                                 }));
+    switch (data.msgType) {
+        case "readData":
+            console.log(data.bytesToSign);
+            var bytesToSign = nacl.util.decodeBase64(data.bytesToSign);
+            var signiture = nacl.sign(bytesToSign, keyPair.secretKey);
+            conn.send(JSON.stringify({ 
+                        msgType : "sendPublicKey",
+                        publicKey : nacl.util.encodeBase64(keyPair.publicKey),
+                        bytesSigned : nacl.util.encodeBase64(signiture),
+            }));
+            break;
+        case "reqNewLobby":
+            currentLobby = data.newLobby;
+            currentLobbyMembers = data.lobbyMembers;
+            conn.send(JSON.stringify({
+                msgType: "ackNewLobby",
+                newLobby: currentLobby,
+                switched: true,
+            }));
+            break;
+        case "newMemberInLobby":
+            if (lobby != currentLobby) {
+                console.log("Server sent wrong lobby?");
+                conn.terminate();
+                return;
+            }
+            currentLobbyMembers.push(data.member);
+            break;
+        case "dataString":
+            console.log(data.string);
+            break;
     }
 }
