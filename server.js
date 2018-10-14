@@ -14,19 +14,63 @@ var wsServer = new WebSocketServer( {
 
 var lobbies = new Object();
 
+function createLobby(socket) {
+    lobbies[socket.publicKey] = new Array();
+    lobbies[socket.publicKey].id = socket.publicKey;
+    lobbies[socket.publicKey].push(socket);
+    
+    socket.lobby = socket.publicKey;
+    pullSocket.send(JSON.stringify({
+        msgType: "newLobby",
+        lobby: socket.publicKey,
+        lobbyMembers: lobbies[socket.publicKey],
+    }));
+}
 
-function createRandomLobby() {
+// if you need to optimize joining, this is the place to start
+function pullIntoLobby(lobbySocket, pullPublicKey) {
+    var pullSocket;
+    wsServer.clients.forEach(function(client) {
+       if (client.publicKey == pullPublicKey)  {
+           pullSocket = client;
+       }
+    });
+    if (!pullSocket) {
+        console.log("couldn't find pullPublicKey's corresponding socket");
+        return;
+    }
+    
+    lobbies[socket.publicKey].push(pullSocket);
+    lobbies[socket.publicKey].forEach(function(client) {
+       client.send(JSON.stringify({
+           msgType: "memberInLobbyChange",
+           member: pullSocket.publicKey,
+           isHereNow: true,
+       }));
+    });
+    
+    // TODO just run a cleanup function instead
+    if(pullSocket.lobby == pullSocket.publicKey) {
+        delete lobbies[publicKey];
+    }
+    
+    pullSocket.lobby = lobbySocket.publicKey;
+    pullSocket.send(JSON.stringify({
+        msgType: "newLobby",
+        lobby: lobbySocket.publicKey,
+        lobbyMembers: lobbies[socket.publicKey],
+    }));
     
 }
 
-function onScannerMessage(socket, data) {
+function onMessage(socket, incomingData) {
+    var data = JSON.parse(incomingData);
+    if (!data.hasOwnProperty("msgType")) throw "client " + socket.ipPort + " sent message without msgType!";
     
-}
-
-function onClientMessage(socket, data) {
     switch(data.msgType) {
-        case "clientType" :
-            socket.publicKey = nacl.util.decodeBase64(data.publicKey);
+        case "clientInit" :
+            //socket.clientType = data.type;
+            socket.publicKey = data.publicKey;
             socket.verified = false;
             
             socket.signBytes = nacl.randomBytes(nacl.sign.signatureLength);
@@ -37,16 +81,24 @@ function onClientMessage(socket, data) {
             }));
             break;
         case "signReturn":
-            var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(data.bytesSigned), socket.publicKey);
+            var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(data.bytesSigned),  nacl.util.decodeBase64(socket.publicKey));
             if (!nacl.verify(socket.signBytes, verifyBytes)) {
                 throw "client failed verification, terminating session";
             }
             console.log("client " + socket.ipPort + " passed verification, public key : " + socket.publicKey);
+            delete socket.signBytes;
             socket.verified = true;
+            createLobby(socket);
+            break;
+        case "pull":
+            pullIntoLobby(socket, data.publicKey);
             break;
         case "dataString":
             console.log(data.string);
-            //if (socket.verified) socket.lobby.sendToAll(data);
+            socket.lobby.forEach(function(client) {
+               client.send(JSON.stringify(data));
+            });
+            break;
     }
 }
 

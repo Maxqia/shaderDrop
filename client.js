@@ -13,8 +13,8 @@ var rl = readline.createInterface({
 
 var keyPair = nacl.sign.keyPair();
 var pubKeyString = nacl.util.encodeBase64(keyPair.publicKey);
-console.log(pubKeyString);
 qrCode.generate(pubKeyString);
+console.log(pubKeyString);
 
 var currentLobby;
 var currentLobbyMembers;
@@ -22,8 +22,8 @@ var currentLobbyMembers;
 conn.onopen = function (event) {
     console.log("server connected!")
     conn.send(JSON.stringify({
-        msgType: "clientType",
-        type: "client",
+        msgType: "clientInit",
+        //type: "client",
         publicKey: nacl.util.encodeBase64(keyPair.publicKey),
     }))
 }
@@ -40,22 +40,21 @@ conn.onmessage = function (event) {
                         bytesSigned : nacl.util.encodeBase64(signiture),
             }));
             break;
-        case "reqNewLobby":
+        case "newLobby":
+            console.log("now in lobby : " + data.newLobby);
             currentLobby = data.newLobby;
             currentLobbyMembers = data.lobbyMembers;
-            conn.send(JSON.stringify({
-                msgType: "ackNewLobby",
-                newLobby: currentLobby,
-                switched: true,
-            }));
             break;
-        case "newMemberInLobby":
-            if (lobby != currentLobby) {
+        case "memberInLobbyChange":
+            console.log(data);
+            if (data.lobby != currentLobby) {
                 console.log("Server sent wrong lobby?");
                 conn.terminate();
                 return;
             }
-            currentLobbyMembers.push(data.member);
+            if(data.isHereNow) {
+                currentLobbyMembers.push(data.member);
+            }
             break;
         case "dataString":
             console.log(data.string);
@@ -64,8 +63,16 @@ conn.onmessage = function (event) {
 }
 
 rl.on('line', (input) => {
+    if (input.startsWith("/")) {
+        var pubKeyPush = input.substr(1);
+        conn.send(JSON.stringify({
+            msgType: "push",
+            publicKey: pubKeyPush,
+        }))
+    }
+    
     conn.send(JSON.stringify({ 
-            msgType : "dataString",
-            string: input,
+        msgType : "dataString",
+        string: input,
     }));
 });
