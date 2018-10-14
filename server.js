@@ -1,3 +1,5 @@
+var fs = require('fs');
+var https = require('https');
 var WebSocket = require('ws');
 var WebSocketServer = WebSocket.Server;
 
@@ -6,9 +8,14 @@ nacl.util = require('tweetnacl-util');
 
 var HashMap = require('hashmap');
 
+const server = new https.createServer({
+  cert: fs.readFileSync('cert.pem'),
+  key: fs.readFileSync('key.pem')
+}).listen(8081);
 
 var wsServer = new WebSocketServer( {
-    port : 8081,
+    server,
+    //port : 8081,
     clientTracking: true,
 } );
 
@@ -115,28 +122,6 @@ function onMessage(socket, incomingData) {
             break;
     }
 }
-
-/*function onMessage(socket, incomingData) {
-    var data = JSON.parse(incomingData);
-    if (!data.hasOwnProperty("msgType")) throw "client " + socket.ipPort + " sent message without msgType!";
-    
-    switch(data.msgType) {
-        case "clientType":
-            socket.clientType = data.type;
-            break;
-    }
-    
-    if (!socket.hasOwnProperty("clientType")) return;
-    
-    if (socket.clientType == "client") {
-        onClientMessage(socket, data)
-    }
-
-    if (socket.clientType == "scanner") {
-        onScannerMessage(socket, data);
-    }
-
-}*/
 
 wsServer.on("connection", function(socket, request) {
     socket.ipPort = request.socket.remoteAddress + ":" + request.socket.remotePort;
