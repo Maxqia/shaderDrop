@@ -26,9 +26,11 @@ conn.onopen = function (event) {
         //type: "client",
         publicKey: nacl.util.encodeBase64(keyPair.publicKey),
     }))
+    console.log("sent!")
 }
 
 conn.onmessage = function (event) {
+    console.log(event.data);
     var data = JSON.parse(event.data);
     switch (data.msgType) {
         case "signData":
@@ -41,11 +43,11 @@ conn.onmessage = function (event) {
             }));
             break;
         case "newLobby":
-            console.log("now in lobby : " + data.newLobby);
-            currentLobby = data.newLobby;
+            currentLobby = data.lobby;
             currentLobbyMembers = data.lobbyMembers;
+            console.log("now in lobby : " + currentLobby);
             break;
-        case "memberInLobbyChange":
+        case "memberInLobbyChange": // TODO make this work properly
             console.log(data);
             if (data.lobby != currentLobby) {
                 console.log("Server sent wrong lobby?");
@@ -64,10 +66,10 @@ conn.onmessage = function (event) {
 
 rl.on('line', (input) => {
     if (input.startsWith("/")) {
-        var pubKeyPush = input.substr(1);
+        var pubKeyPull = input.substr(1);
         conn.send(JSON.stringify({
-            msgType: "push",
-            publicKey: pubKeyPush,
+            msgType: "pullIntoCurrentLobby",
+            publicKey: pubKeyPull,
         }))
     }
     

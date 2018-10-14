@@ -14,24 +14,32 @@ var wsServer = new WebSocketServer( {
 
 var lobbies = new Object();
 
+function lobbyAsPubKeyList(lobby) {
+    var retVal = new Array();
+    lobby.forEach(function (client) {
+       retVal.push(client.publicKey);
+    });
+    return retVal;
+}
+
 function createLobby(socket) {
     lobbies[socket.publicKey] = new Array();
     lobbies[socket.publicKey].id = socket.publicKey;
     lobbies[socket.publicKey].push(socket);
     
     socket.lobby = socket.publicKey;
-    pullSocket.send(JSON.stringify({
+    socket.send(JSON.stringify({
         msgType: "newLobby",
         lobby: socket.publicKey,
-        lobbyMembers: lobbies[socket.publicKey],
+        lobbyMembers: lobbyAsPubKeyList(lobbies[socket.publicKey]),
     }));
 }
 
 // if you need to optimize joining, this is the place to start
-function pullIntoLobby(lobbySocket, pullPublicKey) {
+function pullIntoLobby(socket, pullPublicKey) {
     var pullSocket;
     wsServer.clients.forEach(function(client) {
-       if (client.publicKey == pullPublicKey)  {
+       if (client.publicKey == pullPublicKey) {
            pullSocket = client;
        }
     });
@@ -40,30 +48,35 @@ function pullIntoLobby(lobbySocket, pullPublicKey) {
         return;
     }
     
-    lobbies[socket.publicKey].push(pullSocket);
+    // send all current clients a change notification
     lobbies[socket.publicKey].forEach(function(client) {
        client.send(JSON.stringify({
            msgType: "memberInLobbyChange",
+           lobby: socket.publicKey,
            member: pullSocket.publicKey,
            isHereNow: true,
        }));
     });
+
     
     // TODO just run a cleanup function instead
     if(pullSocket.lobby == pullSocket.publicKey) {
-        delete lobbies[publicKey];
+        delete lobbies[pullSocket.publicKey];
     }
     
-    pullSocket.lobby = lobbySocket.publicKey;
+    // add new client to lobby
+    lobbies[socket.publicKey].push(pullSocket);
+    pullSocket.lobby = socket.publicKey;
     pullSocket.send(JSON.stringify({
         msgType: "newLobby",
-        lobby: lobbySocket.publicKey,
-        lobbyMembers: lobbies[socket.publicKey],
+        lobby: socket.publicKey,
+        lobbyMembers: lobbyAsPubKeyList(lobbies[socket.publicKey]),
     }));
     
 }
 
 function onMessage(socket, incomingData) {
+    console.log(incomingData);
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "client " + socket.ipPort + " sent message without msgType!";
     
@@ -90,19 +103,20 @@ function onMessage(socket, incomingData) {
             socket.verified = true;
             createLobby(socket);
             break;
-        case "pull":
+        case "pullIntoCurrentLobby":
             pullIntoLobby(socket, data.publicKey);
             break;
         case "dataString":
             console.log(data.string);
-            socket.lobby.forEach(function(client) {
-               client.send(JSON.stringify(data));
+            lobbies[socket.lobby].forEach(function(client) {
+                //console.log(client);
+                client.send(JSON.stringify(data));
             });
             break;
     }
 }
 
-function onMessage(socket, incomingData) {
+/*function onMessage(socket, incomingData) {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "client " + socket.ipPort + " sent message without msgType!";
     
@@ -122,7 +136,7 @@ function onMessage(socket, incomingData) {
         onScannerMessage(socket, data);
     }
 
-}
+}*/
 
 wsServer.on("connection", function(socket, request) {
     socket.ipPort = request.socket.remoteAddress + ":" + request.socket.remotePort;
