@@ -4,14 +4,22 @@ nacl.util = require('tweetnacl-util');
 
 const client = require("./client.js");
 
-const qrCode = require('qrcode-terminal');
 const readline = require('readline');
 
 
 var pubKeyString = nacl.util.encodeBase64(client.publicKey);
-//qrCode.generate(pubKeyString, {small: true});
-qrCode.generate(pubKeyString);
+
+//pubKeyString = pubKeyString.substring(0,32);
+const qrCode = require('qrcode-terminal');
+qrCode.generate(pubKeyString, {small: true});
+//qrCode.generate(pubKeyString);
 //console.log(pubKeyString);
+
+/*const QRCode = require('qrcode');
+QRCode.toDataURL(pubKeyString, function (err, url) {
+  console.log(url)
+})*/
+
 
 client.recvString = function(str) {
     console.log(str);

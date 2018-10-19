@@ -4,7 +4,7 @@ const nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // temp for now
-var conn = new WebSocket("wss://192.168.1.135:8081");
+var conn = new WebSocket("wss://127.0.0.1:8081");
 var keyPair = nacl.sign.keyPair();
 
 var currentLobby;
