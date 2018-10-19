@@ -4,6 +4,7 @@ npm install instascan isomorphic-ws tweetnacl tweetnacl-util
 
 openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem
 
-npm install http-server
+npm install -g http-server
+watchify browser.js -o outclient.js
 http-server --ssl --cert cert.pem --key key.pem
 node server.js
