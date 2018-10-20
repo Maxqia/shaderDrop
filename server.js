@@ -57,7 +57,7 @@ function leaveLobby(socket) {
        client.send(JSON.stringify({
            msgType: "memberInLobbyChange",
            lobby: socket.lobby,
-           member: pullSocket.publicKey,
+           member: socket.publicKey,
            isHereNow: false,
        }));
     });
