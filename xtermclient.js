@@ -1,6 +1,4 @@
 const client = require("./client.js");
-const nacl = require('tweetnacl');
-nacl.util = require('tweetnacl-util');
 var $ = require("jquery");
 
 const QRCode = require('qrcode');
