@@ -136,7 +136,7 @@ function onMessage(socket, incomingData) {
                 client.send(JSON.stringify({
                     msgType: "dataString",
                     string: data.string,
-                    from: client.publicKey,
+                    from: socket.publicKey,
                 }));
             });
             break;
