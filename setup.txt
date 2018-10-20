@@ -2,7 +2,15 @@
 npm install -g browserify watchify
 npm install -g http-server
 
-npm install instascan ws isomorphic-ws tweetnacl tweetnacl-util jquery
+# all deps
+npm install ws isomorphic-ws tweetnacl tweetnacl-util
+# scanner deps
+npm install instascan
+# webclient deps
+npm install jquery qrcode
+# command deps
+npm install readline qrcode-terminal
+
 
 openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem
 
