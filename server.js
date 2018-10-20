@@ -53,7 +53,7 @@ function leaveLobby(socket) {
     }
     
     // send all current clients a change notification
-    lobbies[socket.publicKey].forEach(function(client) {
+    lobbies[socket.lobby].forEach(function(client) {
        client.send(JSON.stringify({
            msgType: "memberInLobbyChange",
            lobby: socket.lobby,
