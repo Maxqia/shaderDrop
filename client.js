@@ -50,7 +50,7 @@ conn.onmessage = function (event) {
             }
             break;
         case "dataString":
-            exports.recvString(data.string);
+            exports.recvString(data);
             //exports.log(data.string);
             break;
     }

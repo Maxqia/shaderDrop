@@ -21,8 +21,11 @@ QRCode.toDataURL(pubKeyString, function (err, url) {
 })*/
 
 
-client.recvString = function(str) {
-    console.log(str);
+client.recvString = function(data) {
+    // if we didn't send it, display it
+    if (data.from != pubKeyString) {
+        console.log(data.string);
+    }
 }
 
 var rl = readline.createInterface({

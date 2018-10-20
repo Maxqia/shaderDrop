@@ -133,7 +133,11 @@ function onMessage(socket, incomingData) {
             console.log(data.string);
             lobbies[socket.lobby].forEach(function(client) {
                 //console.log(client);
-                client.send(JSON.stringify(data));
+                client.send(JSON.stringify({
+                    msgType: "dataString",
+                    string: data.string,
+                    from: client.publicKey,
+                }));
             });
             break;
     }
