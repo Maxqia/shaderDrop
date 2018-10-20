@@ -6,16 +6,17 @@ var WebSocketServer = WebSocket.Server;
 var nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
-var HashMap = require('hashmap');
+//var HashMap = require('hashmap');
 
-const server = new https.createServer({
+/*const server = new https.createServer({
   cert: fs.readFileSync('cert.pem'),
   key: fs.readFileSync('key.pem')
-}).listen(8081);
+}).listen(8081);*/
 
 var wsServer = new WebSocketServer( {
-    server,
-    //port : 8081,
+//  server,
+    host : "127.0.0.3",
+    port : 8081,
     clientTracking: true,
 } );
 
