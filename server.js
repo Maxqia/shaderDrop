@@ -43,6 +43,26 @@ function createLobby(socket) {
     }));
 }
 
+function leaveLobby(socket) {
+    var index = lobbies[socket.lobby].indexOf(socket);
+    lobbies[socket.lobby].splice(index,1);
+    
+    if (lobbies[socket.lobby].length == 0) {
+        delete lobbies[socket.lobby];
+        return;
+    }
+    
+    // send all current clients a change notification
+    lobbies[socket.publicKey].forEach(function(client) {
+       client.send(JSON.stringify({
+           msgType: "memberInLobbyChange",
+           lobby: socket.lobby,
+           member: pullSocket.publicKey,
+           isHereNow: false,
+       }));
+    });
+}
+
 // if you need to optimize joining, this is the place to start
 function pullIntoLobby(socket, pullPublicKey) {
     var pullSocket;
@@ -65,14 +85,9 @@ function pullIntoLobby(socket, pullPublicKey) {
            isHereNow: true,
        }));
     });
-
-    
-    // TODO just run a cleanup function instead
-    if(pullSocket.lobby == pullSocket.publicKey) {
-        delete lobbies[pullSocket.publicKey];
-    }
     
     // add new client to lobby
+    leaveLobby(pullSocket);
     lobbies[socket.publicKey].push(pullSocket);
     pullSocket.lobby = socket.publicKey;
     pullSocket.send(JSON.stringify({
@@ -139,6 +154,7 @@ wsServer.on("connection", function(socket, request) {
     
     socket.on("close", function(code, reason) {
         console.log("client " + socket.ipPort + " closed due to : " + reason);
+        leaveLobby(socket);
     })
 });
 
