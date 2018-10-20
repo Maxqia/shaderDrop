@@ -3,3 +3,5 @@ package-lock.json
 cert.pem
 key.pem
 outclient.js
+public/xtermclient.js
+public/scanner.js

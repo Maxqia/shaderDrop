@@ -4,8 +4,12 @@ const nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; // temp for now
-var conn = new WebSocket("wss://shaderdrop.com/websocket/");
 var keyPair = nacl.sign.keyPair();
+
+var conn;
+function connect() { // <- 1 tab
+
+conn = new WebSocket("wss://shaderdrop.com/websocket/");
 
 var currentLobby;
 var currentLobbyMembers;
@@ -36,7 +40,7 @@ conn.onmessage = function (event) {
         case "newLobby":
             currentLobby = data.lobby;
             currentLobbyMembers = data.lobbyMembers;
-            exports.log("now in lobby : " + currentLobby);
+            exports.newLobby(currentLobby);
             break;
         case "memberInLobbyChange": // TODO make this work properly
             //exports.log(data);
@@ -56,6 +60,8 @@ conn.onmessage = function (event) {
     }
 }
 
+} // <- 1 tab
+
 function sendString(str) {
     conn.send(JSON.stringify({
         msgType: "dataString",
@@ -74,7 +80,12 @@ function pull(publicKey) {
     }));
 }
 
+function newLobby(currentLobby) {
+    exports.log("now in lobby : " + currentLobby);
+}
+connect();
 exports.sendString = sendString;
-exports.publicKey = keyPair.publicKey;
+exports.publicKey = nacl.util.encodeBase64(keyPair.publicKey);
 exports.log = log;
 exports.pull = pull;
+exports.newLobby = newLobby;

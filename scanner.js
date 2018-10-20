@@ -1,5 +1,4 @@
 const client = require("./client.js");
-
 const Instascan = require("instascan");
 
 var scanner = new Instascan.Scanner({ 
