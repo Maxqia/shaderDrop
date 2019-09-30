@@ -9,7 +9,8 @@ var keyPair = nacl.sign.keyPair();
 var conn;
 function connect() { // <- 1 tab
 
-conn = new WebSocket("wss://shaderdrop.com/websocket/");
+//conn = new WebSocket("wss://shaderdrop.com/websocket/");
+conn = new WebSocket("ws://127.0.0.3:8081/websocket/");
 
 var currentLobby;
 var currentLobbyMembers;
