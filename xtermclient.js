@@ -8,20 +8,30 @@ QRCode.toCanvas(qrCanvas, client.publicKey, function (error) {
   console.log('success!');
 })
 
+var connectedTo = null;
+
 var chat = document.getElementById("chat");
-client.recvString = function(data) {
+client.msgRecv = function(id, data) {
     // if we didn't send it, display it
     //if (data.from != pubKeyString) {
         var li = document.createElement("li");
-        li.appendChild(document.createTextNode(data.string));
+        li.appendChild(document.createTextNode(id+" : "data));
         chat.appendChild(li);
     //}
+    
+    var data = JSON.parse(incomingData);
+    if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
+    switch(data.msgType) {
+      case "connect":
+        connect(data.clientID);
+        break;
+    };
 }
 
  $('#lobby').text("lobby : ");
-client.newLobby = function(lobby) {
-    //console.log(lobby);
-    $('#lobby').text("lobby : " + lobby);
+function connect(id) {
+  connectedTo = id;
+  $('#lobby').text("lobby : " + id);
 }
 
 $('#messageBox').keypress(function(e) {

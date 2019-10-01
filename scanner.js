@@ -6,10 +6,32 @@ var scanner = new Instascan.Scanner({
     mirror: false,
 });
 
+
+
 scanner.addListener('scan', function (content) {
     console.log(content);
-    client.pull(content);
+    onScan(content);
+
 });
+
+var clientList = [];
+function onScan(id) {
+    client.sendMsg(content, JSON.stringify({
+        msgType : "scanned",
+    }));
+    
+    clientList.push(id);
+    if (clientList.length == 2) {
+      client.sendMsg(clientList[1], JSON.stringify({
+        msgType : "connect",
+        clientID : clientList[0],
+      }));
+     client.sendMsg(clientList[0], JSON.stringify({
+        msgType : "connect",
+        clientID : clientList[1],
+      }));
+    }
+}
 
 Instascan.Camera.getCameras().then(function (cameras) {
     if (cameras.length > 0) {
