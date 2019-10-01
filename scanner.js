@@ -1,5 +1,5 @@
 const client = require("./client.js");
-const Instascan = require("instascan");
+const Instascan = require("@eventstag/instascan");
 
 var scanner = new Instascan.Scanner({ 
     video: document.getElementById('preview'),
@@ -15,12 +15,12 @@ scanner.addListener('scan', function (content) {
 });
 
 var clientList = [];
-function onScan(id) {
-    client.sendMsg(content, JSON.stringify({
+function onScan(ID) {
+    client.sendMsg(ID, JSON.stringify({
         msgType : "scanned",
     }));
     
-    clientList.push(id);
+    clientList.push(ID);
     if (clientList.length == 2) {
       client.sendMsg(clientList[1], JSON.stringify({
         msgType : "connect",

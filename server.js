@@ -1,4 +1,4 @@
-'use strict;
+'use strict';
 var fs = require('fs');
 var https = require('https');
 var WebSocket = require('ws');
@@ -21,7 +21,7 @@ var clientList = require('./clientlist.js');
 
 var wsServer = new WebSocketServer( {
 //  server,
-    host : "127.0.0.3",
+    host : "0.0.0.0",
     port : 8081,
     clientTracking: true,
 } );
@@ -41,7 +41,6 @@ wsServer.on("connection", function(socket, request) {
     
     socket.on("close", function(code, reason) {
         console.log("client " + socket.ipPort + " closed due to : " + reason);
-        leaveLobby(socket);
     })
     
     // send random bytes for client to sign
@@ -49,8 +48,8 @@ wsServer.on("connection", function(socket, request) {
     console.log("sending random bytes to " + socket.ipPort);
     socket.send(JSON.stringify({
         msgType : "signData",
-        bytesToSign : nacl.util.encodeBase64(socket.signBytes),
-        clientID : client.stringID,
+        bytesToSign : nacl.util.encodeBase64(client.randomBytes),
+        stringID : client.stringID,
     }));
 });
 
@@ -65,16 +64,17 @@ function onMessage(socket, incomingData) {
             if (client.verify(data.publicKey, data.bytesSigned)){
                 throw "client failed verification, terminating session";
             }
-            console.log("client " + socket.ipPort + " passed verification, public key : " + socket.publicKey);
+            console.log("client " + socket.ipPort + " passed verification, id : " + client.stringID + " : public key : " + client.publicKey);
             break;
         case "sendMsg":
-            var sendClient = clientList.getByID(data.id);
+            var sendClient = clientList.getByID(data.stringID);
             if (sendClient) {
               sendClient.socket.send(JSON.stringify({
                 msgType: "msgRecv",
                 string: data.string,
-                from: client.stringID,
+                fromID: client.stringID,
               }));
+              console.log(client);
             }
             break;
     }

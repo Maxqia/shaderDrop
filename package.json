@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "nodemon -r esm server.js",
     "build": "webpack",
     "watch": "webpack --watch",
     "server": "webpack-dev-server --open"
@@ -21,12 +21,16 @@
   },
   "homepage": "https://gitlab.com/Maxqia/shaderdrop#readme",
   "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.6.2",
+    "nodemon": "^1.19.3",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.1"
   },
   "dependencies": {
-    "instascan": "^1.0.0",
+    "@eventstag/instascan": "^2.0.1",
+    "esm": "^3.2.25",
     "isomorphic-ws": "^4.0.1",
     "jquery": "^3.4.1",
     "qrcode": "^1.4.2",

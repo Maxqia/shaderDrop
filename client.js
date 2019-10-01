@@ -12,7 +12,7 @@ var conn;
 function connect() { // <- 1 tab
 
 //conn = new WebSocket("wss://shaderdrop.com/websocket/");
-conn = new WebSocket("ws://127.0.0.3:8081/websocket/");
+conn = new WebSocket("wss://"+location.host+"/websocket/");
 
 conn.onopen = function (event) {
     exports.log("server connected!");
@@ -31,11 +31,14 @@ conn.onmessage = function (event) {
                         publicKey: nacl.util.encodeBase64(keyPair.publicKey),
                         bytesSigned : nacl.util.encodeBase64(signiture),
             }));
+            
+            exports.log("id : " + data.stringID);
             exports.id = data.stringID;
+            if (exports.gotID) exports.gotID();
             break;
         case "msgRecv":
-            exports.log("recieved string from : " + id + " : " + str);
-            exports.msgRecv(data.id, data.string);
+            msgRecv(data.fromID, data.string);
+            if (exports.msgRecv) exports.msgRecv(data.fromID, data.string);
             break;
     }
 }
@@ -45,9 +48,13 @@ conn.onmessage = function (event) {
 function sendMsg(id, str) {
     conn.send(JSON.stringify({
         msgType: "sendMsg",
-        id : id,
+        stringID: id,
         string: str,
     }));
+}
+
+function msgRecv(id, str) {
+  exports.log("recieved string from : " + id + " : " + str);
 }
 
 function log(str) {
@@ -56,8 +63,9 @@ function log(str) {
 
 connect();
 exports.msgRecv = null;
-exports.sendString = sendString;
+exports.sendMsg = sendMsg;
 exports.publicKey = nacl.util.encodeBase64(keyPair.publicKey);
 exports.id = null;
 exports.log = log;
+exports.gotID = null
 

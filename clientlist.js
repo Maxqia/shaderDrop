@@ -7,20 +7,20 @@ var clientListID = [];
 
 class Client {
   constructor(socket) {
-    socket = socket;
-    randomBytes = nacl.randomBytes(nacl.sign.signatureLength);
-    verfied = false;
-    publicKey = null;
-    stringId = getRandomID();
+    this.socket = socket;
+    this.randomBytes = nacl.randomBytes(nacl.sign.signatureLength);
+    this.verified = false;
+    this.publicKey = null;
+    this.stringID = getRandomID();
   }
   
   // returns true if verification passed
   verify(publicKey, signedBytes) {
     this.publicKey = publicKey;
-    var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(bytesSigned),  nacl.util.decodeBase64(publicKey));
+    var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(signedBytes),  nacl.util.decodeBase64(publicKey));
     this.verified = !nacl.verify(this.randomBytes, verifyBytes);
     delete this.randomBytes;
-    return verified;
+    return this.verified;
   }
 }
 
@@ -50,5 +50,6 @@ export function getByPublicKey(publicKey) {
 
 var number = 0;
 function getRandomID() {
-  return number++.toString();
+  number++;
+  return number.toString();
 }

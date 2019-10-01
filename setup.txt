@@ -12,8 +12,9 @@ npm install jquery qrcode --save
 npm install readline qrcode-terminal --save
 
 
+openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 -out cert.pem
 # setup and run
 npm install
-node server.js
+npm run start
 npm run watch
 

@@ -3,19 +3,22 @@ var $ = require("jquery");
 
 const QRCode = require('qrcode');
 var qrCanvas = document.getElementById('qrcode');
-QRCode.toCanvas(qrCanvas, client.publicKey, function (error) {
-  if (error) console.error(error)
-  console.log('success!');
-})
+
+client.gotID = function() {
+  QRCode.toCanvas(qrCanvas, client.id, function (error) {
+    if (error) console.error(error);
+    console.log('success!');
+  })
+}
 
 var connectedTo = null;
 
 var chat = document.getElementById("chat");
-client.msgRecv = function(id, data) {
+client.msgRecv = function(id, incomingData) {
     // if we didn't send it, display it
     //if (data.from != pubKeyString) {
         var li = document.createElement("li");
-        li.appendChild(document.createTextNode(id+" : "data));
+        li.appendChild(document.createTextNode(id+" : "+incomingData));
         chat.appendChild(li);
     //}
     
@@ -36,7 +39,7 @@ function connect(id) {
 
 $('#messageBox').keypress(function(e) {
     if (e.which == 13) {
-        client.sendString($('#messageBox').val());
+        client.sendMsg(connectedTo, JSON.stringify({ msgType : "message", message : $('#messageBox').val()}));
         $('#messageBox').val('');
         return false;
     }

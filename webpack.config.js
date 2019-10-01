@@ -1,4 +1,5 @@
 const path = require('path');
+var fs = require('fs');
 
 module.exports = {
   mode: 'development',
@@ -17,6 +18,14 @@ module.exports = {
   },
   devServer: {
     https: true,
+    host: '0.0.0.0',
     contentBase: path.join(__dirname, 'public'),
+    disableHostCheck: true,
+    proxy: {
+      '/websocket': {
+        target: 'ws://localhost:8081',
+        ws: true,
+      },
+    },
   },
 };
