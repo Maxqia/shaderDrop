@@ -5,8 +5,8 @@ module.exports = {
   mode: 'development',
   devtool: 'eval-source-map',
   entry: {
-    xtermclient: './xtermclient.js',
-    scanner: './scanner.js'
+    xtermclient: './src/xtermclient.js',
+    scanner: './src/scanner.js'
   },
   output: {
     filename: '[name].js',
