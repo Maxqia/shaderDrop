@@ -2,11 +2,36 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import ReactQrReader from 'react-qr-reader';
-
 const client = require("./client.js");
 const Instascan = require("@eventstag/instascan");
 
+
+class QRReader extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+  
+  componentDidMount() {
+    this.scanner = new Instascan.Scanner({
+      video: document.getElementById('preview'),
+      mirror: false,
+    });
+    this.scanner.addListener('scan', this.props.onScan);
+    Instascan.Camera.getCameras().then((cameras) => {
+      if (cameras.length > 0) {
+        this.scanner.start(cameras[1]);
+      } else {
+        console.error('No cameras found.');
+      }
+    }).catch(function (e) {
+      console.error(e);
+    });
+  }
+  
+  render() {
+    return (<video id="preview"></video>);
+  }
+}
 
 function Client(props) {
   return (
@@ -71,7 +96,7 @@ class ShaderDropScanner extends React.Component {
     
     return (
       <div>
-        <ReactQrReader
+        <QRReader
           onError={(error) => console.error(error)}
           onScan={(data) => this.handleScan(data)}
           facingMode="environment"
