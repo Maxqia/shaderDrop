@@ -38,16 +38,17 @@ class ShaderDropScanner extends React.Component {
   
   handleScan(content) {
     if (content == null) return;
-    if (this.state.clients.includes(content)) return;
     
-    console.log("new client: " + content);
-    this.addClient(content);
     if (this.state.selectedObject != null && this.state.isClient) {
       connectClients(this.state.selectedObject, content);
     }
+    
+    this.addClient(content);
   }
 
   addClient(ID) {
+    if (this.state.clients.includes(ID)) return;
+    console.log("new client: " + ID);
     this.setState({
       clients: this.state.clients.concat([ID]),
     });
