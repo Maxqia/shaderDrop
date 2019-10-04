@@ -61,7 +61,7 @@ function onMessage(socket, incomingData) {
     var client = clientList.getBySocket(socket);
     switch(data.msgType) {
         case "signReturn":
-            if (client.verify(data.publicKey, data.bytesSigned)){
+            if (!client.verify(data.publicKey, data.bytesSigned)){
                 throw "client failed verification, terminating session";
             }
             console.log("client " + socket.ipPort + " passed verification, id : " + client.stringID + " : public key : " + client.publicKey);

@@ -2,8 +2,7 @@
 var nacl = require('tweetnacl');
 
 // this file stores the various states of clients & the information they have
-var clientListSocket = [];
-var clientListID = [];
+var clientList = new Map();
 
 class Client {
   constructor(socket) {
@@ -18,7 +17,7 @@ class Client {
   verify(publicKey, signedBytes) {
     this.publicKey = publicKey;
     var verifyBytes = nacl.sign.open(nacl.util.decodeBase64(signedBytes),  nacl.util.decodeBase64(publicKey));
-    this.verified = !nacl.verify(this.randomBytes, verifyBytes);
+    this.verified = nacl.verify(this.randomBytes, verifyBytes);
     delete this.randomBytes;
     return this.verified;
   }
@@ -27,8 +26,8 @@ class Client {
 // returns client reference
 export function newClient(socket) {
   var client = new Client(socket);
-  clientListSocket[socket] = client;
-  clientListID[client.stringID] = client;
+  clientList.set(client.stringID, client);
+  clientList.set(client.socket, client);
   return client;
 }
 
@@ -37,11 +36,18 @@ export function deleteClient(socket) {
 }
 
 export function getBySocket(socket) {
-  return clientListSocket[socket];
+  console.log(clientList);
+  /*for (let client of clientList) {
+    console.log(client);
+    if (typeof client === 'undefined') continue; // ???
+    if (client.socket === socket) return client;
+  }*/
+  return clientList.get(socket);
+  return null;
 }
 
 export function getByID(stringID) {
-  return clientListID[stringID];
+  return clientList.get(stringID);
 }
 
 export function getByPublicKey(publicKey) {
