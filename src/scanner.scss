@@ -1,0 +1,52 @@
+html, body, #root, #reactapp {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#reactapp {
+  display: flex;
+  flex-direction: column;
+}
+
+#preview {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  
+  border-style: solid;
+  border-width: thin;
+}
+
+#qrContainer {
+  height: 33%;
+}
+
+// list formatting
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+// list formatting for borders
+h1 {
+  border-bottom: 1px solid black;
+  margin-bottom: 0;
+}
+ul li {
+  border-bottom: 1px solid black; 
+}
+// end
+
+$list-margin: 5%;
+#lists {
+  margin: $list-margin;
+  width: 100%-(2*$list-margin);
+  height: 100%-(2*$list-margin);
+}
+
+.list {
+  height: 50% - $list-margin;
+}

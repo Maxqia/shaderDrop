@@ -1,6 +1,7 @@
 'use strict';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import "./scanner.scss";
 
 const client = require("./client.js");
 const Instascan = require("@eventstag/instascan");
@@ -29,7 +30,7 @@ class QRReader extends React.Component {
   }
   
   render() {
-    return (<video id="preview"></video>);
+    return (<video id="preview" className={this.props.className}></video>);
   }
 }
 
@@ -44,6 +45,7 @@ function Client(props) {
 function File(props) {
   return (
     <button>
+      "This is a file"
     </button>
   );
 }
@@ -87,22 +89,34 @@ class ShaderDropScanner extends React.Component {
   }
   
   render() {
-    const fileList = this.state.files.map((file) => {
+    let fileList = this.state.files.map((file) => {
       return (<li> <File/> </li>);
     });
-    const clientList = this.state.clients.map((id) => {
+    let clientList = this.state.clients.map((id) => {
       return (<li key={id}> <Client id={id} selectClient={this.selectClient}/> </li>);
     });
     
+    fileList.push(<li> <File/> </li>);
+    
     return (
-      <div>
-        <QRReader
-          onError={(error) => console.error(error)}
-          onScan={(data) => this.handleScan(data)}
-          facingMode="environment"
-        />
-        <ul>{fileList}</ul>
-        <ul>{clientList}</ul>
+      <div id="reactapp">
+        <div className="qrContainer">
+          <QRReader 
+            onError={(error) => console.error(error)}
+            onScan={(data) => this.handleScan(data)}
+            facingMode="environment"
+          />
+        </div>
+        <div id="lists">
+          <div className="list">
+            <h1>Files</h1>
+            <ul>{fileList}</ul>
+          </div>
+          <div className="list">
+            <h1>Clients</h1>
+            <ul>{clientList}</ul>
+          </div>
+        </div>
       </div>
     );
   }
