@@ -1,8 +1,25 @@
 @import "~bootstrap/scss/bootstrap";
 @import 'status-indicator';
 
+html, body, #root, #reactapp {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 ul {
   list-style-type: none;
   margin: 5%;
   padding: 0;
+}
+
+.olistitm {
+  height: 230px;
+}
+
+#drop {
+  @extend .bg-secondary;
+  width: 128px;
+  height: 128px;
 }

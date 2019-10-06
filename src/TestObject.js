@@ -1,5 +1,6 @@
 'use strict';
 
+// SyntheticFile object
 var FakeFile = {
   name : "test.txt",
   size: 40,
