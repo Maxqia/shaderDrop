@@ -1,19 +1,25 @@
-const client = require("./client.js");
+'use strict';
 var $ = require("jquery");
-
 const QRCode = require('qrcode');
+
+var client = require("./client.js");
+var webrtc = require("./webrtc.js");
+
 var qrCanvas = document.getElementById('qrcode');
+
+
 
 client.gotID = function() {
   QRCode.toCanvas(qrCanvas, client.id, function (error) {
     if (error) console.error(error);
     console.log('success!');
-  })
+  });
+  setTimeout(test, 1000);
 }
 
 var connectedTo = null;
 
-var chat = document.getElementById("chat");
+/*var chat = document.getElementById("chat");
 client.msgRecv = function(id, incomingData) {
     // if we didn't send it, display it
     //if (data.from != pubKeyString) {
@@ -43,4 +49,15 @@ $('#messageBox').keypress(function(e) {
         $('#messageBox').val('');
         return false;
     }
-});
+});*/
+
+
+function test() {
+  // fake connect message
+  if(client.id === "2") {
+    webrtc.msgRecv("3", JSON.stringify({
+      msgType: "connect",
+      clientID: "1",
+    }));
+  }
+}

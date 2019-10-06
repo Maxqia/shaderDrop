@@ -23,6 +23,7 @@
   "devDependencies": {
     "@babel/core": "^7.6.2",
     "@babel/node": "^7.6.2",
+    "@babel/plugin-transform-runtime": "^7.6.2",
     "@babel/preset-env": "^7.6.2",
     "@babel/preset-react": "^7.0.0",
     "autoprefixer": "^9.6.2",
@@ -53,6 +54,8 @@
     "status-indicator": "^1.0.9",
     "tweetnacl": "^1.0.1",
     "tweetnacl-util": "^0.15.0",
+    "webrtc-adapter": "^7.3.0",
+    "wrtc": "^0.4.2",
     "ws": "^7.1.2"
   }
 }

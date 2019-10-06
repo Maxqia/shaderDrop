@@ -11,15 +11,17 @@ var keyPair = nacl.sign.keyPair();
 var conn;
 function connect() { // <- 1 tab
 
-//conn = new WebSocket("wss://shaderdrop.com/websocket/");
-conn = new WebSocket("wss://"+location.host+"/websocket/");
+
+//"wss://shaderdrop.com/websocket/"
+var url = typeof location !== 'undefined' ? "wss://"+location.host+"/websocket/" : "wss://127.0.0.1:8082/websocket/";
+conn = new WebSocket(url);
 
 conn.onopen = function (event) {
     exports.log("server connected!");
 }
 
 conn.onmessage = function (event) {
-    exports.log(event.data);
+    //exports.log(event.data);
     var data = JSON.parse(event.data);
     switch (data.msgType) {
         case "signData":
@@ -37,7 +39,7 @@ conn.onmessage = function (event) {
             if (exports.gotID) exports.gotID();
             break;
         case "msgRecv":
-            msgRecv(data.fromID, data.string);
+            //msgRecv(data.fromID, data.string);
             if (exports.msgRecv) exports.msgRecv(data.fromID, data.string);
             break;
     }
