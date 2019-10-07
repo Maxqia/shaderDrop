@@ -2,42 +2,129 @@
 const readline = require('readline');
 const qrCode = require('qrcode-terminal');
 
-var client = require("./client.js");
 var webrtc = require("./webrtc.js");
 
-client.gotID = () => {
-  qrCode.generate(client.id, {small: true});
-  setTimeout(test, 1000);
-};
+import WebSocketTransport from "./wstransport.js";
+import WebRTCTransport from "./rtctransport.js";
 
-var rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 
-/*client.recvString = function(data) {
-    // if we didn't send it, display it
-    if (data.from != pubKeyString) {
-        console.log(data.string);
-    }
+
+
+var args = process.argv.slice(2);
+var progName;
+{
+  let fileList = process.argv[1].split('/');
+  progName = fileList[fileList.length - 1];
 }
 
-rl.on('line', (input) => {
-    if (input.startsWith("/")) {
-        var pubKeyPull = input.substr(1);
-        client.pull(pubKeyPull);
-    }
-    
-    client.sendString(input);
-});*/
+function printHelp() {
+  console.error("Usage : "+progName+" (send|recv) [args] [file]"); 
+  console.error("sends files/pipes through the shaderDrop network");
+  console.error();
+  console.error("Options:");
+  console.error("  --id          id of the recieving party");
+  console.error("  -h --help     Show this screen.");
+  console.error("  --version     Show version number.");
+  process.exit(1);
+}
 
-function test() {
-  // fake connect message
-  if(client.id === "2") {
-    webrtc.msgRecv("3", JSON.stringify({
-      msgType: "connect",
-      clientID: "1",
-    }));
+console.error('shaderDrop cli client');
+
+if (args.length < 1) {
+  console.error("not enough args");
+  printHelp();
+}
+
+
+var ws = new WebSocketTransport();
+var wrtc = new WebRTCTransport();
+ws.log = (msg) => console.error(msg);
+wrtc.log = (msg) => console.error(msg);
+
+var newClientResolve;
+var newClientPromise = new Promise((resolve, reject) => {
+  newClientResolve = resolve;
+});
+ws.msgRecv = newClientMsgRecv;
+
+
+var connectedID = null;
+var command = args.shift();
+if (args.length >= 2 && args[0] === "--id") {
+  args.shift();
+  connectedID = args.shift(); // TODO validate id somehow
+}
+
+// TODO input & output streams
+
+switch( command ) {
+  case 'send':
+    send().catch((err) => console.error(err));
+    break;
+  case 'recv':
+  case 'recieve':
+    recieve().catch((err) => console.error(err));
+    break;
+  default:
+    printHelp();
+    break;
+};
+
+
+async function wsQrCode() {
+  await ws.connect();
+  qrCode.generate(ws.id, {small: true});
+  console.error(ws.id);
+}
+
+function setupWRTC(clientID) {
+  wrtc.sigSend = (str) => ws.sendMsg(clientID, str);
+  ws.msgRecv = (clientID,str) => {
+    if (id === clientID) {
+      wrtc.sigRecv(str);
+    }
+  };
+  
+}
+
+async function send() {
+  await wsQrCode();
+  if(!connectedID) {
+    const [id, data] = await newClientPromise;
+    connectedId = id;
   }
+  setupWRTC(connectedID);
+  await wrtc.start();
+  
+  
+}
+
+
+async function recieve() {
+  await wsQrCode();
+  
+  const [id, incomingData] = await newClientPromise;
+  connectedId = id;
+  
+  setupWRTC(connectedID);
+  wrtc.sigRecv(incomingData);
+  await wrtc.onOpenPromise;
+  
+}
+
+
+
+
+function newClientMsgRecv(id, incomingData) {
+    var data = JSON.parse(incomingData);
+    if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
+    
+    switch(data.msgType) {
+      case "connect":
+        newClientResolve([data.clientID, incomingData]);
+      case "offer":
+        newClientResolve([id, incomingData]);
+        break;
+    };
 }
 
