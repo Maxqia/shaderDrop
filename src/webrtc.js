@@ -11,16 +11,19 @@ var dc = null;
 function msgRecv(id, incomingData) {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
-    switch(data.msgType) {
-      case "connect":
-        newPeerConnection(data.clientID);
-        sendOffer().catch(reportError);
-        break;
-      case "offer":
-        newPeerConnection(id);
-        sendAnswer(data.sdp).catch(reportError);
-        break;
-    };
+    
+    if (typeof targetID === 'undefined') {
+      switch(data.msgType) {
+        case "connect":
+          newPeerConnection(data.clientID);
+          sendOffer().catch(reportError);
+          break;
+        case "offer":
+          newPeerConnection(id);
+          sendAnswer(data.sdp).catch(reportError);
+          break;
+      };
+    }
     
     if (id != targetID) return;
     switch(data.msgType) {
