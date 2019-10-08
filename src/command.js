@@ -6,6 +6,7 @@ var webrtc = require("./webrtc.js");
 
 import WebSocketTransport from "./wstransport.js";
 import WebRTCTransport from "./rtctransport.js";
+import { RTCWriteStream, RTCReadStream } from "./nodestr.js";
 
 
 
@@ -42,15 +43,16 @@ ws.log = (msg) => console.error(msg);
 wrtc.log = (msg) => console.error(msg);
 ws.msgRecv = newClientMsgRecv;
 
-
-var connectedID = null;
+// command line arguments
 var command = args.shift();
+var connectedID = null;
+var file;
 if (args.length >= 2 && args[0] === "--id") {
   args.shift();
   connectedID = args.shift(); // TODO validate id somehow
 }
 
-// TODO input & output streams
+// TODO files
 
 switch( command ) {
   case 'send':
@@ -67,7 +69,7 @@ switch( command ) {
 
 function setupSigWRTC(clientID) {
   wrtc.sigSend = (str) => ws.sendMsg(clientID, str);
-  ws.msgRecv = (clientID,str) => {
+  ws.msgRecv = (id, str) => {
     if (id === clientID) {
       wrtc.sigRecv(str);
     }
@@ -80,9 +82,11 @@ async function getConnected() {
 
   if(connectedID) { // we've been given an id to connect to!
     setupSigWRTC(connectedID);
+    wrtc.sendOffer().catch((error) => console.error());
   }
   
   if(!connectedID) { // wait for someone to connect to us
+    await ws.getID();
     qrCode.generate(ws.id, {small: true});
     console.error(ws.id);
   }
@@ -109,7 +113,7 @@ async function recieve() {
     // TODO
   } else {
     readStream.pipe(process.stdout);
-    process.stdin.pipe(WriteStream);
+    process.stdin.pipe(readStream);
   }
 }
 
@@ -123,18 +127,20 @@ function newClientMsgRecv(id, incomingData) {
       return;
     }
     if (connectedID) {
-      console.error("recieved unwanted message :" + id + ":" + incomingData;
+      console.error("recieved unwanted message :" + id + ":" + incomingData);
       return;
     }
     
     switch(data.msgType) {
       case "connect":
         connectedID = data.clientID;
-        console.error("recieved request to connect to
+        console.error("recieved request to connect to client: " + connectedID);
         setupSigWRTC(connectedID);
+        wrtc.sendOffer().catch((error) => console.error());
         break;
       case "offer":
-        connectedID = data.clientID;
+        connectedID = id;
+        console.error("recieved offer from client: " + connectedID);
         setupSigWRTC(connectedID);
         wrtc.sigRecv(incomingData);
         break;

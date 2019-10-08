@@ -8,10 +8,10 @@ export default class WebRTCTransport {
     this.dc = null;
 
     // public interface
-    this.msgRecv = (msg) => ();
+    this.msgRecv = (msg) => console.error("default message handler called! : " + msg);
     this.sendMsg = this.sendMsg.bind(this);
     /* this.bufferLow */
-    this.onClose = () => ();
+    this.onClose = () => {};
     /* this.close */
     this.sigRecv = this.recv.bind(this);
     this.sigSend = null;
@@ -20,7 +20,6 @@ export default class WebRTCTransport {
   }
   
   start() {
-    this.sendOffer();
     return this.onOpenPromise;
   }
   
@@ -29,13 +28,15 @@ export default class WebRTCTransport {
     if (this.sigSend) {
       this.sigSend(JSON.stringify(object));
     } else {
-      throw "no signaling partner";
+      this.log("tried to send object with no signaling partner :" + object);
     }
   }
   
-  recv(msg) {
+  recv(incomingData) {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
+    
+    var reportError = (error) => this.log(error);
     switch(data.msgType) {
       case "offer":
         this.sendAnswer(data.sdp).catch(reportError);
@@ -60,10 +61,11 @@ export default class WebRTCTransport {
       ],
     });
     this.pc.onicecandidate = this.handleIceCandidateEvent.bind(this);
-    this.pc.ondatachannel = this.recieveChannel.bind(this);
+    this.pc.ondatachannel = (event) => this.recieveChannel(event.channel);
     this.recieveChannel(this.pc.createDataChannel('stuff', { ordered: true }));
   }
   
+  // might be called twice...
   recieveChannel(channel) {
     this.dc = channel;
     
@@ -77,9 +79,9 @@ export default class WebRTCTransport {
       this.log(event);
       this.onClose();
     }
-    this.dc.onmessage = this.onMsg.bind(this);
+    this.dc.onmessage = (data) => this.onMsg(data);
     
-    this.dc.bufferedAmountLowThreshold = 65535; // 64 KiB
+    this.dc.bufferedAmountLowThreshold = 3;//65535; // 64 KiB
   }
   
   async sendOffer() {

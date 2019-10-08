@@ -7,7 +7,7 @@ nacl.util = require('tweetnacl-util');
 export default class WebSocketTransport {
   constructor() {
     this.keyPair = nacl.sign.keyPair();
-    this.publicKey = nacl.util.encodeBase64(keyPair.publicKey);
+    this.publicKey = nacl.util.encodeBase64(this.keyPair.publicKey);
   
     // public interface
     this.log = (msg) => console.log(msg);
@@ -21,23 +21,23 @@ export default class WebSocketTransport {
   connect() {
     var url = typeof location !== 'undefined' ? "wss://"+location.host+"/websocket/" : "wss://127.0.0.1:8082/websocket/";
     this.conn = new WebSocket(url);
-    this.conn.onmessage = onMessage.bind(this);
+    this.conn.onmessage = this.onMessage.bind(this);
     
     return new Promise((resolve, reject) => {
       this.conn.onopen = resolve;
       this.conn.onerror = reject;
-    };
+    });
   }
   
   getID() {
     return new Promise((resolve, reject) => {
-      if (id) resolve(id);
-      this.onIDRecieved = () => resolve(id);
+      if (this.id) resolve(this.id);
+      this.onIDRecieved = () => resolve(this.id);
     });
   }
   
   sendMsg(id, str) {
-    conn.send(JSON.stringify({
+    this.conn.send(JSON.stringify({
         msgType: "sendMsg",
         stringID: id,
         string: str,
@@ -60,7 +60,7 @@ export default class WebSocketTransport {
         
         this.log("id : " + data.stringID);
         this.id = data.stringID;
-        this.gotID();
+        this.onIDRecieved();
         break;
       case "msgRecv":
         this.msgRecv(data.fromID, data.string);

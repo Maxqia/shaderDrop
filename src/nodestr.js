@@ -8,7 +8,7 @@ const stream = require('stream');
 export class RTCWriteStream extends stream.Writable {
   constructor(transport) {
     super({
-      highWaterMark: 8192, // 8KiB (most common RTCDataChannel Maximum is 16KiB)
+      highWaterMark: 3,//8192, // 8KiB (most common RTCDataChannel Maximum is 16KiB)
       decodeStrings: true,
     });
     this.transport = transport;
@@ -17,7 +17,8 @@ export class RTCWriteStream extends stream.Writable {
   _write(chunk, encoding, callback) {
     this.transport.bufferLow().then(() => {
       this.transport.sendMsg(chunk);
-    });
+      callback();
+    }).catch((reason) => callback(new Error(reason)));
   }
 }
 
@@ -25,7 +26,7 @@ export class RTCWriteStream extends stream.Writable {
 export class RTCReadStream extends stream.Readable {
   constructor(transport) {
     super({
-      highWaterMark: 16384; // doesn't matter, we're gonna ram right through it anyways
+      highWaterMark: 3,//16384, // doesn't matter, we're gonna ram right through it anyways
     });
     this.transport = transport;
     this.transport.msgRecv = this.onMessageRecv.bind(this);
@@ -36,7 +37,9 @@ export class RTCReadStream extends stream.Readable {
   }
   
   onMessageRecv(data) {
-    this.push(data);
+    console.error(data);
+    var uint8View = new Uint8Array(data);
+    this.push(uint8View);
   }
 }
 
