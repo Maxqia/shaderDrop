@@ -15,6 +15,7 @@ export class RTCWriteStream extends stream.Writable {
   }
   
   _write(chunk, encoding, callback) {
+    console.error(chunk);
     this.transport.bufferLow().then(() => {
       this.transport.sendMsg(chunk);
       callback();

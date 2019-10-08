@@ -62,7 +62,6 @@ export default class WebRTCTransport {
     });
     this.pc.onicecandidate = this.handleIceCandidateEvent.bind(this);
     this.pc.ondatachannel = (event) => this.recieveChannel(event.channel);
-    this.recieveChannel(this.pc.createDataChannel('stuff', { ordered: true }));
   }
   
   // might be called twice...
@@ -85,6 +84,7 @@ export default class WebRTCTransport {
   }
   
   async sendOffer() {
+    this.recieveChannel(this.pc.createDataChannel('stuff', { ordered: true }));
     var offer = await this.pc.createOffer();
     await this.pc.setLocalDescription(offer);
     this.send({

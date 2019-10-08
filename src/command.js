@@ -87,7 +87,9 @@ async function getConnected() {
   
   if(!connectedID) { // wait for someone to connect to us
     await ws.getID();
-    qrCode.generate(ws.id, {small: true});
+    qrCode.generate(ws.id, {small: true}, function (qrcode) {
+      console.error(qrcode);
+    });
     console.error(ws.id);
   }
   await wrtc.start();
@@ -113,7 +115,6 @@ async function recieve() {
     // TODO
   } else {
     readStream.pipe(process.stdout);
-    process.stdin.pipe(readStream);
   }
 }
 
