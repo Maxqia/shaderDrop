@@ -40,11 +40,6 @@ var ws = new WebSocketTransport();
 var wrtc = new WebRTCTransport();
 ws.log = (msg) => console.error(msg);
 wrtc.log = (msg) => console.error(msg);
-
-var newClientResolve;
-var newClientPromise = new Promise((resolve, reject) => {
-  newClientResolve = resolve;
-});
 ws.msgRecv = newClientMsgRecv;
 
 
@@ -70,60 +65,78 @@ switch( command ) {
     break;
 };
 
-
-async function wsQrCode() {
-  await ws.connect();
-  qrCode.generate(ws.id, {small: true});
-  console.error(ws.id);
-}
-
-function setupWRTC(clientID) {
+function setupSigWRTC(clientID) {
   wrtc.sigSend = (str) => ws.sendMsg(clientID, str);
   ws.msgRecv = (clientID,str) => {
     if (id === clientID) {
       wrtc.sigRecv(str);
     }
   };
+}
+
+
+async function getConnected() {
+  await ws.connect();
+
+  if(connectedID) { // we've been given an id to connect to!
+    setupSigWRTC(connectedID);
+  }
   
+  if(!connectedID) { // wait for someone to connect to us
+    qrCode.generate(ws.id, {small: true});
+    console.error(ws.id);
+  }
+  await wrtc.start();
 }
 
 async function send() {
-  await wsQrCode();
-  if(!connectedID) {
-    const [id, data] = await newClientPromise;
-    connectedId = id;
+  await getConnected();
+  var writeStream = new RTCWriteStream(wrtc);
+  
+  if (file) {
+    // TODO
+  } else {
+    process.stdin.pipe(writeStream);
   }
-  setupWRTC(connectedID);
-  await wrtc.start();
-  
-  
 }
 
 
 async function recieve() {
-  await wsQrCode();
+  await getConnected();
+  var readStream = new RTCReadStream(wrtc);
   
-  const [id, incomingData] = await newClientPromise;
-  connectedId = id;
-  
-  setupWRTC(connectedID);
-  wrtc.sigRecv(incomingData);
-  await wrtc.onOpenPromise;
-  
+  if (file) {
+    // TODO
+  } else {
+    readStream.pipe(process.stdout);
+    process.stdin.pipe(WriteStream);
+  }
 }
-
-
 
 
 function newClientMsgRecv(id, incomingData) {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
     
+    if (id === connectedID) {
+      wrtc.sigRecv(incomingData);
+      return;
+    }
+    if (connectedID) {
+      console.error("recieved unwanted message :" + id + ":" + incomingData;
+      return;
+    }
+    
     switch(data.msgType) {
       case "connect":
-        newClientResolve([data.clientID, incomingData]);
+        connectedID = data.clientID;
+        console.error("recieved request to connect to
+        setupSigWRTC(connectedID);
+        break;
       case "offer":
-        newClientResolve([id, incomingData]);
+        connectedID = data.clientID;
+        setupSigWRTC(connectedID);
+        wrtc.sigRecv(incomingData);
         break;
     };
 }

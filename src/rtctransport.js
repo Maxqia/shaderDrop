@@ -10,6 +10,9 @@ export default class WebRTCTransport {
     // public interface
     this.msgRecv = (msg) => ();
     this.sendMsg = this.sendMsg.bind(this);
+    /* this.bufferLow */
+    this.onClose = () => ();
+    /* this.close */
     this.sigRecv = this.recv.bind(this);
     this.sigSend = null;
     // end public interface
@@ -70,7 +73,13 @@ export default class WebRTCTransport {
         resolve();
       };
     });
-    this.dc.onclose = (event) => this.log(event);
+    this.dc.onclose = (event) => {
+      this.log(event);
+      this.onClose();
+    }
+    this.dc.onmessage = this.onMsg.bind(this);
+    
+    this.dc.bufferedAmountLowThreshold = 65535; // 64 KiB
   }
   
   async sendOffer() {
@@ -100,6 +109,28 @@ export default class WebRTCTransport {
         candidate: event.candidate,
       });
     }
+  }
+  
+  sendMsg(data) {
+    this.dc.send(data);
+  }
+  
+  onMsg(event) {
+    this.msgRecv(event.data);
+  }
+  
+  bufferLow() {
+    return new Promise((resolve, reject) => {
+      if (this.dc.bufferedAmount < this.dc.bufferedAmountLowThreshold) {
+        resolve();
+      } else {
+        this.dc.onbufferedamountlow = () => resolve();
+      }
+    });
+  }
+  
+  close() {
+    this.dc.close();
   }
 } 
 
