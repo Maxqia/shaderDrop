@@ -85,12 +85,12 @@ async function getConnected() {
   
   if(!connectedID) { // wait for someone to connect to us
     await ws.getID();
-    qrCode.generate(ws.id, {small: true}, function (qrcode) {
+    qrCode.generate(ws.id, {small: false}, function (qrcode) {
       console.error(qrcode);
     });
     console.error(ws.id);
   }
-  await wrtc.start();
+  await wrtc.open();
 }
 
 async function send() {
@@ -143,6 +143,8 @@ function newClientMsgRecv(id, incomingData) {
         setupSigWRTC(connectedID);
         wrtc.sigRecv(incomingData);
         break;
+      default:
+        console.error("recieved unknown message :" + id + ":" + incomingData);
     };
 }
 

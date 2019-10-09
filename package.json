@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon -r esm src/server.js",
+    "server": "nodemon -r esm src/server.js",
     "build": "webpack",
     "watch": "webpack --watch",
-    "server": "webpack-dev-server --open"
+    "dev-server": "webpack-dev-server --open"
   },
   "repository": {
     "type": "git",
@@ -45,6 +45,7 @@
     "esm": "^3.2.25",
     "isomorphic-ws": "^4.0.1",
     "jquery": "^3.4.1",
+    "node-pv": "^0.1.5",
     "qrcode": "^1.4.2",
     "qrcode-terminal": "^0.12.0",
     "qrcode.react": "^0.9.3",
@@ -54,6 +55,7 @@
     "status-indicator": "^1.0.9",
     "tweetnacl": "^1.0.1",
     "tweetnacl-util": "^0.15.0",
+    "uuid": "^3.3.3",
     "webrtc-adapter": "^7.3.0",
     "wrtc": "^0.4.2",
     "ws": "^7.1.2",

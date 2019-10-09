@@ -12,6 +12,8 @@ var FakeClient = {
   stringID: "897b4c7d-b7e1-4524-b048-35601c4381c8",
   publicKey: "5z9YGh06wj6UrLMVceSt8CBdiMCnpI9l8/VORwZFzXM=",
   verified: true,
+  sending: true,
+  file: FakeFile,
 };
 
 export {FakeFile, FakeClient};

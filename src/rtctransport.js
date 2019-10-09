@@ -17,10 +17,18 @@ export default class WebRTCTransport {
     this.sigSend = null;
     // end public interface
     this.newPeerConnection();
+    this.setupOpenPromise();
   }
   
-  start() {
+  open() {
     return this.onOpenPromise;
+  }
+  
+  setupOpenPromise() {
+    this.onOpenPromise = new Promise((resolve, reject) => {
+      this.resolveOpen = resolve;
+      // TODO add timeout
+    });
   }
   
   // send object to signaling peer
@@ -68,16 +76,14 @@ export default class WebRTCTransport {
   recieveChannel(channel) {
     this.dc = channel;
     
-    this.onOpenPromise = new Promise((resolve, reject) => {
-      this.dc.onopen = (event) => {
-        this.log(event);
-        resolve();
-      };
-    });
+    this.dc.onopen = (event) => {
+      this.log(event);
+      this.resolveOpen();
+    };
     this.dc.onclose = (event) => {
       this.log(event);
       this.onClose();
-    }
+    };
     this.dc.onmessage = (data) => this.onMsg(data);
     
     //this.dc.bufferedAmountLowThreshold = 65536; // 64 KiB

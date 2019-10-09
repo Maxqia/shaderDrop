@@ -36,7 +36,6 @@ module.exports = {
     ],
   },
   entry: {
-    xtermclient: './src/xtermclient.js',
     scanner: './src/scanner.js',
     drop: './src/drop.js',
   },

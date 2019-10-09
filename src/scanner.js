@@ -1,11 +1,11 @@
 'use strict';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Instascan from '@eventstag/instascan';
+
 import "./scanner.scss";
-
-const client = require("./client.js");
-const Instascan = require("@eventstag/instascan");
-
+import WebSocketTransport from './wstransport.js';
+import {FakeClient} from './TestObject.js';
 
 class QRReader extends React.Component {
   constructor(props) {
@@ -17,15 +17,18 @@ class QRReader extends React.Component {
       video: document.getElementById('preview'),
       mirror: false,
     });
-    this.scanner.addListener('scan', this.props.onScan);
+    this.scanner.addListener('scan', (data) => {
+      console.log(data);
+      this.props.onScan(data);
+    });
     Instascan.Camera.getCameras().then((cameras) => {
       if (cameras.length > 0) {
         this.scanner.start(cameras[1]);
       } else {
-        console.error('No cameras found.');
+        this.props.onError('No cameras found.');
       }
     }).catch(function (e) {
-      console.error(e);
+      this.props.onError(e);
     });
   }
   
@@ -36,8 +39,8 @@ class QRReader extends React.Component {
 
 function Client(props) {
   return (
-    <button onClick={() => props.selectClient(props.id)}>
-      {props.id}
+    <button onClick={() => props.selectClient(props.client.stringID)}>
+      {props.client.stringID}{" "}{props.client.sending ? "sending" : "recieving"}
     </button>
   );
 }
@@ -54,49 +57,63 @@ class ShaderDropScanner extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      clients: [],
-      files: [],
-      selectedObject: null,
-      isClient: true,
+      clients: [FakeClient],
+      selectedClient: null,
     };
     this.selectClient = this.selectClient.bind(this);
+    this.handleScan = this.handleScan.bind(this);
+    
+    this.transport = new WebSocketTransport();
+    this.transport.connect();
   }
   
   
   handleScan(content) {
     if (content == null) return;
     
-    if (this.state.selectedObject != null && this.state.isClient) {
-      connectClients(this.state.selectedObject, content);
+    var client = {
+      stringID: content,
+      sending: true,
+    };
+    
+    if (this.state.selectedClient != null) {
+      this.connectClients(this.state.selectedClient, client);
     }
     
-    this.addClient(content);
+    this.addClient(client);
   }
 
-  addClient(ID) {
-    if (this.state.clients.includes(ID)) return;
-    console.log("new client: " + ID);
+  addClient(client) {
+    if (this.state.clients.includes(client)) return;
+    console.log("new client: " + client);
+    
     this.setState({
-      clients: this.state.clients.concat([ID]),
+      clients: this.state.clients.concat(client),
     });
-    client.sendMsg(ID, JSON.stringify({
+    this.transport.sendMsg(client.stringID, JSON.stringify({
         msgType : "scanned",
     }));
+    
+    if (this.state.selectedClient == null) {
+      this.selectClient(client);
+    }
+  }
+  
+  connectClients(cli1, cli2) {
+     this.transport.sendMsg(cli1.stringID, JSON.stringify({
+        msgType : "connect",
+        clientID : cli2.stringID,
+     }));
   }
   
   selectClient(client) {
-    this.setState({selectedObject: client, isClient: true});
+    this.setState({selectedClient: client});
   }
   
   render() {
-    let fileList = this.state.files.map((file) => {
-      return (<li> <File/> </li>);
+    let clientList = this.state.clients.map((client) => {
+      return (<li key={client.stringID}> <Client client={client} selectClient={this.selectClient}/> </li>);
     });
-    let clientList = this.state.clients.map((id) => {
-      return (<li key={id}> <Client id={id} selectClient={this.selectClient}/> </li>);
-    });
-    
-    fileList.push(<li> <File/> </li>);
     
     return (
       <div id="reactapp">
@@ -109,10 +126,6 @@ class ShaderDropScanner extends React.Component {
         </div>
         <div id="lists">
           <div className="list">
-            <h1>Files</h1>
-            <ul>{fileList}</ul>
-          </div>
-          <div className="list">
             <h1>Clients</h1>
             <ul>{clientList}</ul>
           </div>
@@ -124,13 +137,4 @@ class ShaderDropScanner extends React.Component {
 
 ReactDOM.render(<ShaderDropScanner/>, document.getElementById('root'));
 
-function connectClients(cli1, cli2) {
-   client.sendMsg(cli1, JSON.stringify({
-      msgType : "connect",
-      clientID : cli2,
-   }));
-   client.sendMsg(cli2, JSON.stringify({
-      msgType : "connect",
-      clientID : cli1,
-   }));
-}
+

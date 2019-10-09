@@ -7,6 +7,8 @@ var WebSocketServer = WebSocket.Server;
 var nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
+const uuidv1 = require('uuid/v1');
+
 /* Implements basic message passing (server-side) */
 
 /*const server = new https.createServer({
@@ -23,10 +25,11 @@ var wsServer = new WebSocketServer( {
 
 var clientList = new Map();
 
-var number = 0;
+//var number = 0;
 function getRandomID() {
-  number++;
-  return number.toString();
+  //number++;
+  //return number.toString();
+  return uuidv1();
 }
 
 function socketSetup() {
