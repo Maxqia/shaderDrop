@@ -8,26 +8,48 @@ const stream = require('stream');
 export class RTCWriteStream extends stream.Writable {
   constructor(transport) {
     super({
-      highWaterMark: 3,//8192, // 8KiB (most common RTCDataChannel Maximum is 16KiB)
+      highWaterMark: 16384, // 16KiB
       decodeStrings: true,
     });
     this.transport = transport;
+    this.total = 0;
+    global.writeStream = this;
   }
   
   _write(chunk, encoding, callback) {
-    console.error(chunk);
-    this.transport.bufferLow().then(() => {
-      this.transport.sendMsg(chunk);
-      callback();
-    }).catch((reason) => callback(new Error(reason)));
+    //console.error(chunk);
+    // fragment chunk
+    const fragSize = 16384; // 16KiB (most common RTCDataChannel Message Maximum is 16KiB)
+    let currentPromise = this.transport.bufferLow();
+    
+    let bytePos = 0;
+    while (bytePos < chunk.length) {
+      let sendBytes = Math.min(fragSize, chunk.length - bytePos);
+      let fragChunk = chunk.subarray(bytePos, bytePos+sendBytes);
+      currentPromise = currentPromise.then(() => {
+        //console.error(fragChunk);
+        this.transport.sendMsg(fragChunk);
+        return this.transport.bufferLow();
+      });
+      //this.transport.sendMsg(fragChunk);
+      bytePos += sendBytes;
+    }
+    currentPromise.then(() => callback()).catch((reason) => callback(new Error(reason)));
+    //callback();
   }
+  
+  /*_write(chunk, encoding, callback) {
+    this.total += chunk.length
+    console.log(this.total);
+    callback();
+  }*/
 }
 
 // gets a message (webrtc) and passes it to a stream 
 export class RTCReadStream extends stream.Readable {
   constructor(transport) {
     super({
-      highWaterMark: 3,//16384, // doesn't matter, we're gonna ram right through it anyways
+      highWaterMark: 16384, // doesn't matter, we're gonna ram right through it anyways
     });
     this.transport = transport;
     this.transport.msgRecv = this.onMessageRecv.bind(this);

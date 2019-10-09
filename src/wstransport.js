@@ -3,6 +3,8 @@ const WebSocket = require('isomorphic-ws');
 const nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0; // HACK : ignore self signed certificate
+
 /* connects to our websocket infrasturcture for message passing */
 export default class WebSocketTransport {
   constructor() {

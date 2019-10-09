@@ -80,7 +80,8 @@ export default class WebRTCTransport {
     }
     this.dc.onmessage = (data) => this.onMsg(data);
     
-    this.dc.bufferedAmountLowThreshold = 3;//65535; // 64 KiB
+    //this.dc.bufferedAmountLowThreshold = 65536; // 64 KiB
+    //this.dc.onbufferedamountlow = this.onBufferLow.bind(this);
   }
   
   async sendOffer() {
@@ -121,13 +122,43 @@ export default class WebRTCTransport {
     this.msgRecv(event.data);
   }
   
+  /*bufferLow() {
+    console.log("new buffer low");
+    return new Promise((resolve, reject) => {
+      // "decreases to fall to or below"
+      // add a lot more to stop race conditions between setting the handlers
+      if (this.dc.bufferedAmount <= 2 * this.dc.bufferedAmountLowThreshold) {
+        resolve();
+        return;
+      }
+      
+      //this.resolve = resolve;
+      /*if (this.resolve) this.log("last handler not unset");
+      this.dc.onbufferedamountlow = () => {
+        this.dc.onbufferedamountlow = null;
+        resolve();
+      };*//*
+    });
+  }*/
+  
+  /*onBufferLow() {
+    console.log("buffer low");
+    if(this.resolve) this.resolve();
+  }*/
+  
+  // HACK, node.js' WebRTC implementation doesn't have onbufferedamountlow.......
   bufferLow() {
     return new Promise((resolve, reject) => {
-      if (this.dc.bufferedAmount < this.dc.bufferedAmountLowThreshold) {
-        resolve();
-      } else {
-        this.dc.onbufferedamountlow = () => resolve();
-      }
+      var testFunc = () => {
+        // "decreases to fall to or below"
+        // add a lot more to stop race conditions between setting the handlers
+        if (this.dc.bufferedAmount <= 5 * Math.pow(2,20) /*5MiB*/) {
+          resolve();
+          return;
+        }
+        setTimeout(testFunc, 20); // theoretical throughput of 2gbps
+      };
+      testFunc();
     });
   }
   

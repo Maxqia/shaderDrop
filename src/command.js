@@ -2,8 +2,6 @@
 const readline = require('readline');
 const qrCode = require('qrcode-terminal');
 
-var webrtc = require("./webrtc.js");
-
 import WebSocketTransport from "./wstransport.js";
 import WebRTCTransport from "./rtctransport.js";
 import { RTCWriteStream, RTCReadStream } from "./nodestr.js";
