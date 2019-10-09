@@ -1,6 +1,6 @@
 'use strict';
-const readline = require('readline');
-const qrCode = require('qrcode-terminal');
+import qrCode from 'qrcode-terminal';
+import nodePV from 'node-pv';
 
 import WebSocketTransport from "./wstransport.js";
 import WebRTCTransport from "./rtctransport.js";
@@ -97,11 +97,22 @@ async function send() {
   await getConnected();
   var writeStream = new RTCWriteStream(wrtc);
   
+  var readStream;
   if (file) {
     // TODO
   } else {
-    process.stdin.pipe(writeStream);
+    readStream = process.stdin;
   }
+  
+  var pv = nodePV({
+    size: null,
+    name: "pipe",
+  });
+  pv.on('info', function(str) {
+    process.stderr.write(str);
+  });
+  
+  readStream.pipe(pv).pipe(writeStream);
 }
 
 
@@ -109,11 +120,22 @@ async function recieve() {
   await getConnected();
   var readStream = new RTCReadStream(wrtc);
   
+  var writeStream;
   if (file) {
     // TODO
   } else {
-    readStream.pipe(process.stdout);
+    writeStream = process.stdout
   }
+  
+  var pv = nodePV({
+    size: null,
+    name: "pipe",
+  });
+  pv.on('info', function(str) {
+    process.stderr.write(str);
+  });
+  
+  readStream.pipe(pv).pipe(writeStream);
 }
 
 
