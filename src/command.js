@@ -36,9 +36,8 @@ if (args.length < 1) {
 
 
 var ws = new WebSocketTransport();
-var wrtc = new WebRTCTransport();
+var wrtc = null;
 ws.log = (msg) => console.error(msg);
-wrtc.log = (msg) => console.error(msg);
 ws.msgRecv = newClientMsgRecv;
 
 // command line arguments
@@ -54,42 +53,42 @@ if (args.length >= 2 && args[0] === "--id") {
 
 switch( command ) {
   case 'send':
-    send().catch((err) => console.error(err));
+    send().catch(
+      (err) => console.error(err)
+    );
     break;
   case 'recv':
   case 'recieve':
-    recieve().catch((err) => console.error(err));
+    recieve().catch(
+      (err) => console.error(err)
+    );
     break;
   default:
     printHelp();
     break;
 };
 
-function setupSigWRTC(clientID) {
-  wrtc.sigSend = (str) => ws.sendMsg(clientID, str);
-  ws.msgRecv = (id, str) => {
-    if (id === clientID) {
-      wrtc.sigRecv(str);
-    }
-  };
+function setupWRTC(clientID) {
+  wrtc = new WebRTCTransport(ws.transport(clientID));
+  wrtc.log = (msg) => console.error(msg);
 }
-
 
 async function getConnected() {
   await ws.connect();
 
   if(connectedID) { // we've been given an id to connect to!
-    setupSigWRTC(connectedID);
+    setupWRTC(connectedID);
     wrtc.sendOffer().catch((error) => console.error());
   }
   
   if(!connectedID) { // wait for someone to connect to us
-    await ws.getID();
-    qrCode.generate(ws.id, {small: false}, function (qrcode) {
+    qrCode.generate(await ws.id.get(), {small: false}, function (qrcode) {
       console.error(qrcode);
     });
     console.error(ws.id);
+    setupWRTC(connectedID);
   }
+
   await wrtc.open();
 }
 

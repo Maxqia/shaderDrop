@@ -2,62 +2,44 @@
 //import adapter from 'webrtc-adapter';
 import {RTCPeerConnection, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
 
-export default class WebRTCTransport {
-  constructor() {
+import {Transport} from './transport.js';
+import {FutureEvent} from './event.js';
+
+export default class WebRTCTransport extends Transport {
+  constructor(upperTransport) {
+    super();
     this.pc = null;
     this.dc = null;
 
+    this.transport = upperTransport;
     // public interface
     this.msgRecv = (msg) => console.error("default message handler called! : " + msg);
     this.sendMsg = this.sendMsg.bind(this);
     /* this.bufferLow */
-    this.onClose = () => {};
-    /* this.close */
-    this.sigRecv = this.recv.bind(this);
-    this.sigSend = null;
     // end public interface
+    
+    this.bufferEvent = new FutureEvent();
+    
     this.newPeerConnection();
-    this.setupOpenPromise();
-  }
-  
-  open() {
-    return this.onOpenPromise;
-  }
-  
-  setupOpenPromise() {
-    this.onOpenPromise = new Promise((resolve, reject) => {
-      this.resolveOpen = resolve;
-      // TODO add timeout
-    });
+    this.setupRecv();
   }
   
   // send object to signaling peer
   send(object) {
-    if (this.sigSend) {
-      this.sigSend(JSON.stringify(object));
-    } else {
-      this.log("tried to send object with no signaling partner :" + object);
-    }
+    this.transport.sendMsg(JSON.stringify(object));
   }
   
-  recv(incomingData) {
-    var data = JSON.parse(incomingData);
-    if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
-    
+  setupRecv() {
     var reportError = (error) => this.log(error);
-    switch(data.msgType) {
-      case "offer":
-        this.sendAnswer(data.sdp).catch(reportError);
-        break;
-      case "new-ice-candidate":
-        var candidate = new RTCIceCandidate(data.candidate);
-        this.pc.addIceCandidate(candidate).catch(reportError);
-        break;
-      case "answer":
-        var desc = new RTCSessionDescription(data.sdp);
-        this.pc.setRemoteDescription(desc).catch(reportError);
-        break;
-    }
+    this.transport.on("offer", (data) => this.sendAnswer(data.sdp).catch(reportError));
+    this.transport.on("new-ice-candidate", (data) => {
+      var candidate = new RTCIceCandidate(data.candidate);
+      this.pc.addIceCandidate(candidate).catch(reportError);
+    });
+    this.transport.on("answer", (data) => {
+      var desc = new RTCSessionDescription(data.sdp);
+      this.pc.setRemoteDescription(desc).catch(reportError);
+    });
   }
   
   newPeerConnection() {
@@ -78,16 +60,16 @@ export default class WebRTCTransport {
     
     this.dc.onopen = (event) => {
       this.log(event);
-      this.resolveOpen();
+      this.open.fire();
     };
     this.dc.onclose = (event) => {
       this.log(event);
-      this.onClose();
+      this.close.fire();
     };
-    this.dc.onmessage = (data) => this.onMsg(data);
+    this.dc.onmessage = (data) => this.srvMsg(data);
     
-    //this.dc.bufferedAmountLowThreshold = 65536; // 64 KiB
-    //this.dc.onbufferedamountlow = this.onBufferLow.bind(this);
+    this.dc.bufferedAmountLowThreshold = 5 * Math.pow(2,20) / 2; /*2.5MiB*/
+    this.setupBufferEvent();
   }
   
   async sendOffer() {
@@ -123,49 +105,31 @@ export default class WebRTCTransport {
   sendMsg(data) {
     this.dc.send(data);
   }
-  
-  onMsg(event) {
-    this.msgRecv(event.data);
-  }
-  
-  /*bufferLow() {
-    console.log("new buffer low");
-    return new Promise((resolve, reject) => {
-      // "decreases to fall to or below"
-      // add a lot more to stop race conditions between setting the handlers
-      if (this.dc.bufferedAmount <= 2 * this.dc.bufferedAmountLowThreshold) {
-        resolve();
-        return;
-      }
-      
-      //this.resolve = resolve;
-      /*if (this.resolve) this.log("last handler not unset");
-      this.dc.onbufferedamountlow = () => {
-        this.dc.onbufferedamountlow = null;
-        resolve();
-      };*//*
-    });
-  }*/
-  
-  /*onBufferLow() {
-    console.log("buffer low");
-    if(this.resolve) this.resolve();
-  }*/
-  
-  // HACK, node.js' WebRTC implementation doesn't have onbufferedamountlow.......
+
   bufferLow() {
+    setupBufferEvent();
     return new Promise((resolve, reject) => {
       var testFunc = () => {
         // "decreases to fall to or below"
         // add a lot more to stop race conditions between setting the handlers
-        if (this.dc.bufferedAmount <= 5 * Math.pow(2,20) /*5MiB*/) {
+        if (this.dc.bufferedAmount <= 2 * this.dc.bufferedAmountLowThreshold) {
           resolve();
           return;
         }
+        
+        // HACK, node.js' WebRTC implementation doesn't have onbufferedamountlow.......
         setTimeout(testFunc, 20); // theoretical throughput of 2gbps
       };
+      this.bufferEvent.register(testFunc);
       testFunc();
     });
+  }
+  
+  setupBufferEvent() {
+    if (this.bufferEvent.resolved) {
+      this.bufferEvent = new FutureEvent();
+    }
+    this.dc.onbufferedamountlow = this.bufferEvent.fire;
   }
   
   close() {
