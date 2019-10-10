@@ -43,6 +43,13 @@ export class RTCWriteStream extends stream.Writable {
     console.log(this.total);
     callback();
   }*/
+  
+  _final(callback) {
+    this.transport.bufferEmpty().then(() => {
+      this.transport.disconnect();
+      callback();
+    });
+  }
 }
 
 // gets a message (webrtc) and passes it to a stream 
@@ -53,6 +60,9 @@ export class RTCReadStream extends stream.Readable {
     });
     this.transport = transport;
     this.transport.defaultHandler = this.onMessageRecv.bind(this);
+    this.transport.close.register(() => {
+      this.push(null); // ends reading
+    });
   }
   
   _read(size) {

@@ -56,6 +56,11 @@ export default class WebRTCTransport extends Transport {
     });
     this.pc.onicecandidate = this.handleIceCandidateEvent.bind(this);
     this.pc.ondatachannel = (event) => this.recieveChannel(event.channel);
+    
+    // clean-up peer connection when data connection closes
+    this.close.register(() => {
+      this.pc.close();
+    });
   }
   
   // might be called twice...
@@ -136,7 +141,20 @@ export default class WebRTCTransport extends Transport {
     this.dc.onbufferedamountlow = this.bufferEvent.fire;
   }
   
-  close() {
+  bufferEmpty() {
+    return new Promise((resolve, reject) => {
+      var testFunc = () => {
+        if (this.dc.bufferedAmount <= 0) {
+          resolve();
+          return;
+        }
+        setTimeout(testFunc, 20);
+      };
+      testFunc();
+    });
+  }
+  
+  disconnect() {
     this.dc.close();
   }
 } 

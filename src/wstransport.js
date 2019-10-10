@@ -48,6 +48,11 @@ export default class WebSocketTransport extends Transport {
     return this.open.promise(1000, "connection timed out!");
   }
   
+  disconnect() {
+    this.conn.close();
+    return this.close.promise();
+  }
+  
   sendMsg(id, str) {
     this.conn.send(JSON.stringify({
         msgType: "sendMsg",

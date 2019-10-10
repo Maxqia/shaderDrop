@@ -1,6 +1,6 @@
 'use strict';
-var wtf = require('wtfnode');
-global.wtf = wtf;
+//const whyIsNodeRunning = require('why-is-node-running')
+//global.whyIsNodeRunning = whyIsNodeRunning;
 import qrCode from 'qrcode-terminal';
 import nodePV from 'node-pv';
 import fs from 'fs';
@@ -43,6 +43,7 @@ var command = args.shift();
 var connectedID = null;
 var files;
 var force = false;
+var debug = false;
 
 for(let i = 0; i < args.length; i++) {
   switch (args[i]) {
@@ -93,14 +94,12 @@ switch (command) {
 };
 
 finalPromise.then(() => {
-  console.error("succeded");
-  //TODO can't exit here yet, wrtc stream is still running
-  //wtf.dump(); // log unclosed handles
+  console.error("done!");
+  //whyIsNodeRunning(); // log unclosed handles
   //process.exit(1);
 }).catch((error) => {
-  console.error("failed");
-  console.error(error);
-  wtf.dump(); // log unclosed handles
+  console.error(error.message);
+  //whyIsNodeRunning(); // log unclosed handles
   printHelpAndExit();
 });
 
@@ -118,13 +117,20 @@ async function getConnected() {
   }
   
   if(!connectedID) { // wait for someone to connect to us
-    qrCode.generate(await ws.id.get(), {small: false}, function (qrcode) {
+    var id = await ws.id.get()
+    qrCode.generate(id, {small: false}, function (qrcode) {
       console.error(qrcode);
     });
-    console.error(ws.id);
+    console.error(id);
   }
 
   await wrtc.open.promise();
+}
+
+async function disconnect() {
+  await wrtc.close.promise();
+  ws.disconnect();
+  await ws.close.promise();
 }
 
 async function send() {
@@ -171,6 +177,8 @@ async function send() {
   });
   
   readStream.pipe(pv).pipe(writeStream);
+  
+  await disconnect();
 }
 
 
@@ -212,6 +220,8 @@ async function recieve() {
   });
   
   readStream.pipe(pv).pipe(writeStream);
+  
+  await disconnect();
 }
 
 

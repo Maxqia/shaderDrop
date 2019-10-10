@@ -38,6 +38,7 @@
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9",
     "webpack-dev-server": "^3.8.1",
+    "why-is-node-running": "^2.1.0",
     "wtfnode": "^0.8.0"
   },
   "dependencies": {
