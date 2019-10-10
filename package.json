@@ -4,6 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
+    "postinstall": "patch-package",
     "test": "echo \"Error: no test specified\" && exit 1",
     "server": "nodemon -r esm src/server.js",
     "build": "webpack",
@@ -48,6 +49,7 @@
     "isomorphic-ws": "^4.0.1",
     "jquery": "^3.4.1",
     "node-pv": "^0.1.5",
+    "patch-package": "^6.2.0",
     "qrcode": "^1.4.2",
     "qrcode-terminal": "^0.12.0",
     "qrcode.react": "^0.9.3",

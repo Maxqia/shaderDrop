@@ -1,0 +1,56 @@
+diff --git a/node_modules/qrcode-terminal/lib/main.js b/node_modules/qrcode-terminal/lib/main.js
+index 488cc1a..2ea5312 100644
+--- a/node_modules/qrcode-terminal/lib/main.js
++++ b/node_modules/qrcode-terminal/lib/main.js
+@@ -46,14 +46,17 @@ module.exports = {
+             }
+ 
+             var platte= {
+-                WHITE_ALL: '\u2588',
+-                WHITE_BLACK: '\u2580',
+-                BLACK_WHITE: '\u2584',
+-                BLACK_ALL: ' ',
++                WHITE_ALL: '\033[47m \033[0m',
++                WHITE_BLACK: '\033[47m\u2584\033[0m',
++                BLACK_WHITE: '\033[47m\u2580\033[0m',
++                BLACK_ALL: '\033[47m\u2588\033[0m',
++                
++                CLEAR_WHITE: "\033[37m\u2584\033[0m",
++                WHITE_CLEAR: "\033[37m\u2580\033[0m",
+             };
+ 
+-            var borderTop = repeat(platte.BLACK_WHITE).times(moduleCount + 3);
+-            var borderBottom = repeat(platte.WHITE_BLACK).times(moduleCount + 3);
++            var borderTop = repeat(platte.CLEAR_WHITE).times(moduleCount + 3);
++            var borderBottom = repeat(platte.WHITE_CLEAR).times(moduleCount + 3);
+             output += borderTop + '\n';
+ 
+             for (var row = 0; row < moduleCount; row += 2) {
+diff --git a/node_modules/qrcode-terminal/vendor/QRCode/QR8bitByte.js b/node_modules/qrcode-terminal/vendor/QRCode/QR8bitByte.js
+index 94bf74f..dbe4230 100644
+--- a/node_modules/qrcode-terminal/vendor/QRCode/QR8bitByte.js
++++ b/node_modules/qrcode-terminal/vendor/QRCode/QR8bitByte.js
+@@ -2,7 +2,13 @@ var QRMode = require('./QRMode');
+ 
+ function QR8bitByte(data) {
+ 	this.mode = QRMode.MODE_8BIT_BYTE;
+-	this.data = data;
++	
++	if (typeof data === "string") {
++	  var enc = new TextEncoder();
++	  this.data = enc.encode(data);
++	} else {
++	  this.data = data;
++	}
+ }
+ 
+ QR8bitByte.prototype = {
+@@ -14,7 +20,7 @@ QR8bitByte.prototype = {
+ 	write : function(buffer) {
+ 		for (var i = 0; i < this.data.length; i++) {
+ 			// not JIS ...
+-			buffer.put(this.data.charCodeAt(i), 8);
++			buffer.put(this.data[i], 8);
+ 		}
+ 	}
+ };

@@ -118,7 +118,7 @@ async function getConnected() {
   
   if(!connectedID) { // wait for someone to connect to us
     var id = await ws.id.get()
-    qrCode.generate(id, {small: false}, function (qrcode) {
+    qrCode.generate(id, {small: true}, function (qrcode) {
       console.error(qrcode);
     });
     console.error(id);
