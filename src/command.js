@@ -1,6 +1,9 @@
 'use strict';
+var wtf = require('wtfnode');
+global.wtf = wtf;
 import qrCode from 'qrcode-terminal';
 import nodePV from 'node-pv';
+import fs from 'fs';
 
 import WebSocketTransport from "./wstransport.js";
 import WebRTCTransport from "./rtctransport.js";
@@ -23,6 +26,7 @@ function printHelpAndExit() {
   console.error("Options:");
   console.error("  --id          id of the recieving party");
   console.error("  -h --help     Show this screen.");
+  console.error("  -f --force    Overwrite file if it already exists");
   //console.error("  -v --version  Show version number.");
   process.exit(1);
 }
@@ -38,10 +42,7 @@ if (args.length < 1) {
 var command = args.shift();
 var connectedID = null;
 var files;
-if (args.length >= 2 && args[0] === "--id") {
-  args.shift();
-  connectedID = args.shift(); // TODO validate id somehow
-}
+var force = false;
 
 for(let i = 0; i < args.length; i++) {
   switch (args[i]) {
@@ -53,7 +54,13 @@ for(let i = 0; i < args.length; i++) {
       if (args.length <= i+1) printHelpAndExit();
       connectedID = args[i+1]
       args.splice(i, 2);
-      i = 0;
+      i = -1; // restart search
+      break;
+    case "-f":
+    case "--force":
+      force = true;
+      args.splice(i, 1);
+      i = -1; // restart search
       break;
     default:
       break;
@@ -68,20 +75,34 @@ ws.log = (msg) => console.error(msg);
 wrtc.log = (msg) => console.error(msg);
 ws.msgRecv = newClientMsgRecv;
 
-// TODO files
+// TODO multiple files
 
+var finalPromise;
 switch (command) {
   case 'send':
-    send();
+    finalPromise = send();
     break;
   case 'recv':
   case 'recieve':
-    recieve();
+    finalPromise = recieve();
     break;
   default:
-    printHelp();
+    console.error("unknown command");
+    printHelpAndExit();
     break;
 };
+
+finalPromise.then(() => {
+  console.error("succeded");
+  //TODO can't exit here yet, wrtc stream is still running
+  //wtf.dump(); // log unclosed handles
+  //process.exit(1);
+}).catch((error) => {
+  console.error("failed");
+  console.error(error);
+  wtf.dump(); // log unclosed handles
+  printHelpAndExit();
+});
 
 
 function setupWRTC(clientID) {
@@ -107,19 +128,43 @@ async function getConnected() {
 }
 
 async function send() {
+  // setup files
+  var fileInfo;
+  var readStream;
+  if (files.length >= 1) {
+    if (files.length >= 2) throw new Error("sending more than one file not implemented");
+    var file = files[0];
+    var fileStat = fs.statSync(file);
+    if (fileStat.isDirectory()) throw new Error("sending directories not implemented");
+    
+    var fileSplit = file.split('/');
+    var fileName = fileSplit[fileSplit.length-1];
+    
+    readStream = fs.createReadStream(file);
+    fileInfo = {
+      name: fileName,
+      size: fileStat.size,
+    };
+  } else {
+    readStream = process.stdin;
+    fileInfo = {
+      name: "stdin",
+      size: -1,
+    };
+  }
+  
+  // send stream
   await getConnected();
   var writeStream = new RTCWriteStream(wrtc);
   
-  var readStream;
-  if (file) {
-    // TODO
-  } else {
-    readStream = process.stdin;
-  }
+
+  
+  fileInfo.msgType = "fileInfo";
+  wrtc.sendJSON(fileInfo);
   
   var pv = nodePV({
-    size: null,
-    name: "pipe",
+    size: fileInfo.size,
+    name: fileInfo.name,
   });
   pv.on('info', function(str) {
     process.stderr.write(str);
@@ -130,19 +175,37 @@ async function send() {
 
 
 async function recieve() {
+  // setup files
+  var writeStream;
+  if (files.length >= 1) {
+    if (files.length >= 2) throw new Error("recieving more than one file not implemented");
+    var file = files[0];
+    
+    var fd;
+    try {
+      fd = fs.openSync(file, "wx"); //wx makes it throw error if the file already exists
+    } catch (error) {
+      if (force) {
+        fd = fs.openSync(file, "w");
+      } else {
+        throw error;
+      }
+      // if we got here, it means we opened the file to be overwritten
+      console.error("force specified, overwriting file : " + file); 
+    }
+    writeStream = fs.createWriteStream(null, { fd: fd });
+  } else {
+    writeStream = process.stdout;
+  }
+  
+  // recieve stream
   await getConnected();
   var readStream = new RTCReadStream(wrtc);
   
-  var writeStream;
-  if (file) {
-    // TODO
-  } else {
-    writeStream = process.stdout
-  }
-  
+  var fileInfo = await wrtc.next('fileInfo', 1000, "did not recieve fileInfo message!");
   var pv = nodePV({
-    size: null,
-    name: "pipe",
+    size: fileInfo.size,
+    name: fileInfo.name,
   });
   pv.on('info', function(str) {
     process.stderr.write(str);
@@ -182,4 +245,3 @@ function newClientMsgRecv(id, incomingData) {
         console.error("recieved unknown message :" + id + ":" + incomingData);
     };
 }
-

@@ -37,7 +37,8 @@
     "style-loader": "^1.0.0",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9",
-    "webpack-dev-server": "^3.8.1"
+    "webpack-dev-server": "^3.8.1",
+    "wtfnode": "^0.8.0"
   },
   "dependencies": {
     "@eventstag/instascan": "^2.0.1",

@@ -32,6 +32,21 @@ export class MessageHandler {
   on(msgType, callback) {
     this.handlers.set(msgType, callback);
   }
+  
+  next(msgType, timeout, timeoutMsg) {
+    return new Promise((resolve, reject) => {
+      if (timeout != undefined) {
+        setTimeout(() => {
+          this.handlers.delete(msgType);
+          reject(timeoutMsg);
+        }, timeout);
+      }
+      this.handlers.set(msgType, (data) => {
+        this.handlers.delete(msgType);
+        resolve(data);
+      });
+    })
+  }
 }
 
 export class Transport extends MessageHandler {
@@ -41,7 +56,11 @@ export class Transport extends MessageHandler {
     this.close = new FutureEvent();
   }
   
-  sendMsg(object) {
-    throw "sendMsg not defined! : object : " + object; 
+  sendMsg(data) {
+    throw "sendMsg not defined! : object : " + data;
+  }
+  
+  sendJSON(object) {
+    this.sendMsg(JSON.stringify(object));
   }
 }
