@@ -16,14 +16,14 @@ var progName;
   progName = fileList[fileList.length - 1];
 }
 
-function printHelp() {
-  console.error("Usage : "+progName+" (send|recv) [args] [file]"); 
+function printHelpAndExit() {
+  console.error("Usage : "+progName+" (send|recv) [args] [file]...");
   console.error("sends files/pipes through the shaderDrop network");
   console.error();
   console.error("Options:");
   console.error("  --id          id of the recieving party");
   console.error("  -h --help     Show this screen.");
-  console.error("  --version     Show version number.");
+  //console.error("  -v --version  Show version number.");
   process.exit(1);
 }
 
@@ -31,8 +31,35 @@ console.error('shaderDrop cli client');
 
 if (args.length < 1) {
   console.error("not enough args");
-  printHelp();
+  printHelpAndExit();
 }
+
+// command line arguments
+var command = args.shift();
+var connectedID = null;
+var files;
+if (args.length >= 2 && args[0] === "--id") {
+  args.shift();
+  connectedID = args.shift(); // TODO validate id somehow
+}
+
+for(let i = 0; i < args.length; i++) {
+  switch (args[i]) {
+    case "-h":
+    case "--help":
+      printHelpAndExit();
+      break; // should not reach
+    case "--id":
+      if (args.length <= i+1) printHelpAndExit();
+      connectedID = args[i+1]
+      args.splice(i, 2);
+      i = 0;
+      break;
+    default:
+      break;
+  }
+}
+files = args;
 
 
 var ws = new WebSocketTransport();
@@ -41,35 +68,24 @@ ws.log = (msg) => console.error(msg);
 wrtc.log = (msg) => console.error(msg);
 ws.msgRecv = newClientMsgRecv;
 
-// command line arguments
-var command = args.shift();
-var connectedID = null;
-var file;
-if (args.length >= 2 && args[0] === "--id") {
-  args.shift();
-  connectedID = args.shift(); // TODO validate id somehow
-}
-
 // TODO files
 
-switch( command ) {
+switch (command) {
   case 'send':
-    send().catch(
-      (err) => console.error(err)
-    );
+    send();
     break;
   case 'recv':
   case 'recieve':
-    recieve().catch(
-      (err) => console.error(err)
-    );
+    recieve();
     break;
   default:
     printHelp();
     break;
 };
 
+
 function setupWRTC(clientID) {
+  wrtc.setTransport(ws.transport(connectedID));
 }
 
 async function getConnected() {
@@ -153,13 +169,13 @@ function newClientMsgRecv(id, incomingData) {
       case "connect":
         connectedID = data.clientID;
         console.error("recieved request to connect to client: " + connectedID);
-        wrtc.setTransport(ws.transport(connectedID));
+        setupWRTC(connectedID);
         wrtc.sendOffer().catch((error) => console.error());
         break;
       case "offer":
         connectedID = id;
         console.error("recieved offer from client: " + connectedID);
-        wrtc.setTransport(ws.transport(connectedID));
+        setupWRTC(connectedID);
         wrtc.transport.srvMsg(incomingData); // inject message back into wrtc
         break;
       default:
