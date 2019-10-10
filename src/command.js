@@ -36,8 +36,9 @@ if (args.length < 1) {
 
 
 var ws = new WebSocketTransport();
-var wrtc = null;
+var wrtc = new WebRTCTransport();
 ws.log = (msg) => console.error(msg);
+wrtc.log = (msg) => console.error(msg);
 ws.msgRecv = newClientMsgRecv;
 
 // command line arguments
@@ -69,8 +70,6 @@ switch( command ) {
 };
 
 function setupWRTC(clientID) {
-  wrtc = new WebRTCTransport(ws.transport(clientID));
-  wrtc.log = (msg) => console.error(msg);
 }
 
 async function getConnected() {
@@ -86,10 +85,9 @@ async function getConnected() {
       console.error(qrcode);
     });
     console.error(ws.id);
-    setupWRTC(connectedID);
   }
 
-  await wrtc.open();
+  await wrtc.open.promise();
 }
 
 async function send() {
@@ -155,14 +153,14 @@ function newClientMsgRecv(id, incomingData) {
       case "connect":
         connectedID = data.clientID;
         console.error("recieved request to connect to client: " + connectedID);
-        setupSigWRTC(connectedID);
+        wrtc.setTransport(ws.transport(connectedID));
         wrtc.sendOffer().catch((error) => console.error());
         break;
       case "offer":
         connectedID = id;
         console.error("recieved offer from client: " + connectedID);
-        setupSigWRTC(connectedID);
-        wrtc.sigRecv(incomingData);
+        wrtc.setTransport(ws.transport(connectedID));
+        wrtc.transport.srvMsg(incomingData); // inject message back into wrtc
         break;
       default:
         console.error("recieved unknown message :" + id + ":" + incomingData);

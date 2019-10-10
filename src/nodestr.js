@@ -52,7 +52,7 @@ export class RTCReadStream extends stream.Readable {
       highWaterMark: 16384, // doesn't matter, we're gonna ram right through it anyways
     });
     this.transport = transport;
-    this.transport.msgRecv = this.onMessageRecv.bind(this);
+    this.transport.defaultHandler = this.onMessageRecv.bind(this);
   }
   
   _read(size) {

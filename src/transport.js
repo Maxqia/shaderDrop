@@ -9,6 +9,9 @@ export class MessageHandler {
     this.defaultHandler = (msg) => {
       this.log("Message not handled! : " + msg);
     };
+    
+    this.srvMsg = this.srvMsg.bind(this);
+    this.on = this.on.bind(this);
   }
   
   srvMsg(incomingData) {
@@ -36,9 +39,9 @@ export class Transport extends MessageHandler {
     super();
     this.open = new FutureEvent();
     this.close = new FutureEvent();
-    
-    this.sendMsg = (object) => {
-      throw "sendMsg not defined! : object : " + object; 
-    };
+  }
+  
+  sendMsg(object) {
+    throw "sendMsg not defined! : object : " + object; 
   }
 }

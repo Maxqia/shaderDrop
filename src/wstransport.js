@@ -16,7 +16,7 @@ class WebSocketIDTransport extends Transport {
   }
   
   sendMsg(msg) {
-    this.transport.sendMsg(id, msg);
+    this.transport.sendMsg(this.id, msg);
   }
 };
 

@@ -21,6 +21,7 @@ export class FutureEvent {
         callback(optData);
       }
     }
+    this.callback = [];
     this.resolved = true;
   }
   
@@ -48,6 +49,7 @@ export class FutureValue {
         callback(this.value);
       }
     }
+    this.callback = [];
   }
   
   // calls callback with value once it's available

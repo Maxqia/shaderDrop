@@ -6,12 +6,12 @@ import {Transport} from './transport.js';
 import {FutureEvent} from './event.js';
 
 export default class WebRTCTransport extends Transport {
-  constructor(upperTransport) {
+  constructor() {
     super();
     this.pc = null;
     this.dc = null;
 
-    this.transport = upperTransport;
+    this.transport = new Transport();
     // public interface
     this.msgRecv = (msg) => console.error("default message handler called! : " + msg);
     this.sendMsg = this.sendMsg.bind(this);
@@ -21,12 +21,16 @@ export default class WebRTCTransport extends Transport {
     this.bufferEvent = new FutureEvent();
     
     this.newPeerConnection();
-    this.setupRecv();
   }
   
   // send object to signaling peer
   send(object) {
     this.transport.sendMsg(JSON.stringify(object));
+  }
+  
+  setTransport(transport) {
+    this.transport = transport;
+    this.setupRecv();
   }
   
   setupRecv() {
@@ -66,7 +70,7 @@ export default class WebRTCTransport extends Transport {
       this.log(event);
       this.close.fire();
     };
-    this.dc.onmessage = (data) => this.srvMsg(data);
+    this.dc.onmessage = (event) => this.srvMsg(event.data);
     
     this.dc.bufferedAmountLowThreshold = 5 * Math.pow(2,20) / 2; /*2.5MiB*/
     this.setupBufferEvent();
@@ -107,7 +111,7 @@ export default class WebRTCTransport extends Transport {
   }
 
   bufferLow() {
-    setupBufferEvent();
+    this.setupBufferEvent();
     return new Promise((resolve, reject) => {
       var testFunc = () => {
         // "decreases to fall to or below"
