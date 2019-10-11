@@ -74,8 +74,10 @@ var fileInfo;
 var sending;
 var ws = new WebSocketTransport();
 var wrtc = new WebRTCTransport();
-ws.log = (msg) => console.error(msg);
-wrtc.log = (msg) => console.error(msg);
+//ws.log = (msg) => console.error(msg);
+//wrtc.log = (msg) => console.error(msg);
+ws.log = (msg) => {};
+wrtc.log = (msg) => {};
 ws.msgRecv = newClientMsgRecv;
 
 // TODO multiple files
@@ -96,6 +98,7 @@ switch (command) {
 };
 
 finalPromise.then(() => {
+  console.error();
   console.error("done!");
   //whyIsNodeRunning(); // log unclosed handles
   //process.exit(1);
@@ -123,7 +126,7 @@ async function getConnected() {
     qrCode.generate(id, {small: true}, function (qrcode) {
       console.error(qrcode);
     });
-    console.error(id);
+    console.error("id : " + id);
     
     ws.sendJSON({
       msgType: "update",
@@ -135,8 +138,10 @@ async function getConnected() {
       },
     });
   }
-
+  
+  process.stderr.write("waiting for connection...");
   await wrtc.open.promise();
+  process.stderr.write(" connected!\n");
 }
 
 async function disconnect() {
@@ -255,17 +260,17 @@ function newClientMsgRecv(id, incomingData) {
     switch(data.msgType) {
       case "connect":
         connectedID = data.clientID;
-        console.error("recieved request to connect to client: " + connectedID);
+        //console.error("recieved request to connect to client: " + connectedID);
         setupWRTC(connectedID);
         wrtc.sendOffer().catch((error) => console.error());
         break;
       case "offer":
         connectedID = id;
-        console.error("recieved offer from client: " + connectedID);
+        //console.error("recieved offer from client: " + connectedID);
         setupWRTC(connectedID);
         wrtc.transport.srvMsg(incomingData); // inject message back into wrtc
         break;
       default:
-        console.error("recieved unknown message :" + id + ":" + incomingData);
+        //console.error("recieved unknown message :" + id + ":" + incomingData);
     };
 }
