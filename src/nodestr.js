@@ -28,7 +28,7 @@ export class RTCWriteStream extends stream.Writable {
       let fragChunk = chunk.subarray(bytePos, bytePos+sendBytes);
       currentPromise = currentPromise.then(() => {
         //console.error(fragChunk);
-        this.transport.sendMsg(fragChunk);
+        this.transport.send(fragChunk);
         return this.transport.bufferLow();
       });
       //this.transport.sendMsg(fragChunk);

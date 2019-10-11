@@ -14,7 +14,6 @@ export default class WebRTCTransport extends Transport {
     this.transport = new Transport();
     // public interface
     this.msgRecv = (msg) => console.error("default message handler called! : " + msg);
-    this.sendMsg = this.sendMsg.bind(this);
     /* this.bufferLow */
     // end public interface
     
@@ -22,11 +21,7 @@ export default class WebRTCTransport extends Transport {
     
     this.newPeerConnection();
   }
-  
-  // send object to signaling peer
-  send(object) {
-    this.transport.sendMsg(JSON.stringify(object));
-  }
+
   
   setTransport(transport) {
     this.transport = transport;
@@ -85,7 +80,7 @@ export default class WebRTCTransport extends Transport {
     this.recieveChannel(this.pc.createDataChannel('stuff', { ordered: true }));
     var offer = await this.pc.createOffer();
     await this.pc.setLocalDescription(offer);
-    this.send({
+    this.transport.sendJSON({
       msgType:"offer",
       sdp: this.pc.localDescription,
     });
@@ -96,7 +91,7 @@ export default class WebRTCTransport extends Transport {
     await this.pc.setRemoteDescription(desc);
     var answer = await this.pc.createAnswer();
     await this.pc.setLocalDescription(answer);
-    this.send({
+    this.transport.sendJSON({
       msgType: "answer",
       sdp: answer,
     }); 
@@ -104,14 +99,14 @@ export default class WebRTCTransport extends Transport {
 
   handleIceCandidateEvent(event) {
     if (event.candidate) {
-      this.send({
+      this.transport.sendJSON({
         msgType: "new-ice-candidate",
         candidate: event.candidate,
       });
     }
   }
   
-  sendMsg(data) {
+  send(data) {
     this.dc.send(data);
   }
 

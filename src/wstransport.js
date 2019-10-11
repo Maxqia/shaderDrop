@@ -15,8 +15,8 @@ class WebSocketIDTransport extends Transport {
     this.id = id;
   }
   
-  sendMsg(msg) {
-    this.transport.sendMsg(this.id, msg);
+  send(msg) {
+    this.transport.sendToID(this.id, msg);
   }
 };
 
@@ -29,7 +29,7 @@ export default class WebSocketTransport extends Transport {
   
     // public interface
     this.msgRecv = (id, str) => this.log("recieved string from : " + id + " : " + str);
-    this.sendMsg = this.sendMsg.bind(this);
+    this.sendToID = this.sendToID.bind(this);
     this.id = new FutureValue();
     // end public interface
     
@@ -45,7 +45,14 @@ export default class WebSocketTransport extends Transport {
     this.conn.onmessage = (event) => this.srvMsg(event.data);
     this.conn.onopen = this.open.fire;
     this.conn.onclose = this.close.fire;
-    return this.open.promise(1000, "connection timed out!");
+    this.conn.onerror = this.error.fire;
+    return new Promise((resolve, reject) => {
+      this.error.register(reject);
+      this.open.register(resolve);
+      setTimeout(() => {
+        reject("connection timed out!")
+      }, 1000);
+    });
   }
   
   disconnect() {
@@ -53,12 +60,16 @@ export default class WebSocketTransport extends Transport {
     return this.close.promise();
   }
   
-  sendMsg(id, str) {
-    this.conn.send(JSON.stringify({
+  send(data) {
+    this.conn.send(data);
+  }
+  
+  sendToID(id, str) {
+    this.sendJSON({
         msgType: "sendMsg",
         stringID: id,
         string: str,
-    }));
+    });
   }
   
   // passes messages to the message handler

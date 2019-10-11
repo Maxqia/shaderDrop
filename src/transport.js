@@ -54,13 +54,14 @@ export class Transport extends MessageHandler {
     super();
     this.open = new FutureEvent();
     this.close = new FutureEvent();
+    this.error = new FutureEvent();
   }
   
-  sendMsg(data) {
-    throw "sendMsg not defined! : object : " + data;
+  send(data) {
+    throw new Error("send not defined! : object : " + data);
   }
   
   sendJSON(object) {
-    this.sendMsg(JSON.stringify(object));
+    this.send(JSON.stringify(object));
   }
 }
