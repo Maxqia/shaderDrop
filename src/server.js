@@ -25,6 +25,7 @@ var wsServer = new WebSocketServer( {
 
 var clientList = new Map();
 
+
 //var number = 0;
 function getRandomID() {
   //number++;
@@ -37,6 +38,11 @@ function socketSetup() {
     this.verified = false;
     this.publicKey = null;
     this.stringID = getRandomID();
+    
+    this.clientInfo = null;
+    this.subscribed = []; // clients subscribed for this client's clientInfo updates
+    this.subscribers = []; // clients this client subscribed to
+    
     clientList.set(this.stringID, this);
 }
 
@@ -64,7 +70,16 @@ wsServer.on("connection", function(socket, request) {
     
     socket.on("close", function(code, reason) {
         console.log("client " + socket.ipPort + " closed due to : " + reason);
-    })
+        for (let subscriber in socket.subscribed) {
+          if (typeof subscriber === "undefined") continue;
+          socket.send(JSON.stringify({
+            msgType: "clientInfo",
+            stringID: socket.stringID,
+            string: { msgType : "close" },
+          }));
+          subscriber.subscribers.filter((element) => element !== socket);
+        };
+    });
     
 
     socket.setup = socketSetup;
@@ -101,6 +116,48 @@ function onMessage(socket, incomingData) {
               }));
             }
             break;
+        case "subscribe":
+            var client = clientList.get(data.stringID);
+            if (client) {
+                socket.subscribed.push(client);
+                client.subscribers.push(socket);
+
+
+                socket.send(JSON.stringify({
+                  msgType: "clientInfo",
+                  stringID: client.stringID,
+                  clientInfo: client.clientInfo,
+                }));
+            } else {
+                socket.send(JSON.stringify({
+                  msgType: "clientInfo",
+                  stringID: data.stringID,
+                  clientInfo : "invalid"
+                }));
+            }
+            break;
+       case "unsubscribe":
+            var client = clientList.get(data.stringID);
+            if (client) {
+              socket.subscribed.filter((element) => element !== client);
+              client.subscribers.filter((element) => element !== socket);
+            }
+            break;
+       case "update":
+          socket.clientInfo = data.clientInfo;
+          for (let subscriber in socket.subscribed) {
+              subscriber.send(JSON.stringify({
+                msgType: "clientInfo",
+                stringID: socket.stringID,
+                string: { 
+                  msgType : "update",
+                  string: socket.clientInfo,
+                },
+              }));
+          }
+          break;
+       default:
+          throw "unknown msgType! : " + data.msgType;
     }
 }
 

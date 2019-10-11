@@ -70,6 +70,8 @@ for(let i = 0; i < args.length; i++) {
 files = args;
 
 
+var fileInfo;
+var sending;
 var ws = new WebSocketTransport();
 var wrtc = new WebRTCTransport();
 ws.log = (msg) => console.error(msg);
@@ -98,11 +100,11 @@ finalPromise.then(() => {
   //whyIsNodeRunning(); // log unclosed handles
   //process.exit(1);
 }).catch((error) => {
-  console.error(error.message);
+  //console.error(error.message);
+  console.error(error);
   //whyIsNodeRunning(); // log unclosed handles
   printHelpAndExit();
 });
-
 
 function setupWRTC(clientID) {
   wrtc.setTransport(ws.transport(connectedID));
@@ -110,18 +112,28 @@ function setupWRTC(clientID) {
 
 async function getConnected() {
   await ws.connect();
-
+  
   if(connectedID) { // we've been given an id to connect to!
     setupWRTC(connectedID);
     wrtc.sendOffer().catch((error) => console.error());
   }
   
   if(!connectedID) { // wait for someone to connect to us
-    var id = await ws.id.get()
+    var id = await ws.id.get();
     qrCode.generate(id, {small: true}, function (qrcode) {
       console.error(qrcode);
     });
     console.error(id);
+    
+    ws.sendJSON({
+      msgType: "update",
+      clientInfo: {
+        stringID: id,
+        publicKey: ws.publicKey,
+        sending: sending,
+        file: fileInfo,
+      },
+    });
   }
 
   await wrtc.open.promise();
@@ -135,7 +147,6 @@ async function disconnect() {
 
 async function send() {
   // setup files
-  var fileInfo;
   var readStream;
   if (files.length >= 1) {
     if (files.length >= 2) throw new Error("sending more than one file not implemented");
@@ -158,6 +169,7 @@ async function send() {
       size: -1,
     };
   }
+  sending = true;
   
   // send stream
   await getConnected();
@@ -205,6 +217,7 @@ async function recieve() {
   } else {
     writeStream = process.stdout;
   }
+  sending = false;
   
   // recieve stream
   await getConnected();
@@ -237,6 +250,7 @@ function newClientMsgRecv(id, incomingData) {
       console.error("recieved unwanted message :" + id + ":" + incomingData);
       return;
     }
+
     
     switch(data.msgType) {
       case "connect":

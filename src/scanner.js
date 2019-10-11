@@ -38,11 +38,19 @@ class QRReader extends React.Component {
 }
 
 function Client(props) {
-  return (
-    <button onClick={() => props.selectClient(props.client.stringID)}>
-      {props.client.stringID}{" "}{props.client.sending ? "sending" : "recieving"}
-    </button>
-  );
+  if (props.client.sending) {
+    return (
+      <button onClick={() => props.selectClient(props.client)}>
+        {props.client.file.name}{" "}{props.client.file.size}{" "}{"sending"}
+      </button>
+    );
+  } else {
+    return (
+      <button onClick={() => props.selectClient(props.client)}>
+        {props.client.stringID}{" "}{"recieving"}
+      </button>
+    );
+  }
 }
 
 function File(props) {
@@ -57,7 +65,7 @@ class ShaderDropScanner extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      clients: [FakeClient],
+      clients: [],
       selectedClient: null,
     };
     this.selectClient = this.selectClient.bind(this);
@@ -65,49 +73,90 @@ class ShaderDropScanner extends React.Component {
     
     this.transport = new WebSocketTransport();
     this.transport.connect();
+    this.transport.on("clientInfo", this.clientInfoHandler.bind(this));
   }
-  
   
   handleScan(content) {
     if (content == null) return;
-    
-    var client = {
-      stringID: content,
-      sending: true,
-    };
-    
-    if (this.state.selectedClient != null) {
-      this.connectClients(this.state.selectedClient, client);
+
+    let client = this.getClient(content);
+    if (client != null) {
+      this.connectToSelected(client);
+    } else { // new client!
+      this.transport.sendJSON({
+        msgType: "subscribe",
+        stringID: content,
+      });
+    }
+  }
+  
+  hasClient(id) {
+    for (let client of this.state.clients) {
+      if (client.stringID === id) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  getClient(id) {
+    for (let client of this.state.clients) {
+      if (client.stringID === id) {
+        return client;
+      }
+    }
+    return null;
+  }
+  
+  clientInfoHandler(data) {
+    if (data.clientInfo === "invalid") return;
+    this.updateClient(data.clientInfo);
+  }
+  
+  updateClient(client) {
+    let clients = this.state.clients.slice();
+    let replacedClient = false;
+    for (let i = 0; i < clients.length; i++) {
+      if (client.stringID === clients[i].stringID) {
+        clients[i] = client;
+      }
     }
     
-    this.addClient(client);
-  }
-
-  addClient(client) {
-    if (this.state.clients.includes(client)) return;
-    console.log("new client: " + client);
+    if (!replacedClient) {
+      console.log("new client: " + client.stringID);
+      clients = clients.concat(client);
+      this.transport.sendToID(client.stringID, JSON.stringify({
+          msgType : "scanned",
+      }));
+      this.connectToSelected(client);
+    }
     
     this.setState({
-      clients: this.state.clients.concat(client),
+      clients: clients,
     });
-    this.transport.sendMsg(client.stringID, JSON.stringify({
-        msgType : "scanned",
+  }
+  
+  connectClients(cli1, cli2) {
+    this.transport.sendToID(cli1.stringID, JSON.stringify({
+      msgType : "connect",
+      clientID : cli2.stringID,
     }));
-    
-    if (this.state.selectedClient == null) {
+  }
+  
+  connectToSelected(client) {
+    if (this.state.selectedClient != null) {
+      this.connectClients(this.state.selectedClient, client);
+    } else {
       this.selectClient(client);
     }
   }
   
-  connectClients(cli1, cli2) {
-     this.transport.sendMsg(cli1.stringID, JSON.stringify({
-        msgType : "connect",
-        clientID : cli2.stringID,
-     }));
-  }
-  
   selectClient(client) {
-    this.setState({selectedClient: client});
+    if (this.state.selectedClient != client) {
+      this.setState({selectedClient: client});
+    } else {
+      this.setState({selectedClient: null});
+    }
   }
   
   render() {
