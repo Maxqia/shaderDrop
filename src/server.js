@@ -70,7 +70,7 @@ wsServer.on("connection", function(socket, request) {
     
     socket.on("close", function(code, reason) {
         console.log("client " + socket.ipPort + " closed due to : " + reason);
-        for (let subscriber in socket.subscribed) {
+        for (let subscriber of socket.subscribed) {
           if (typeof subscriber === "undefined") continue;
           socket.send(JSON.stringify({
             msgType: "clientInfo",
@@ -79,6 +79,11 @@ wsServer.on("connection", function(socket, request) {
           }));
           subscriber.subscribers.filter((element) => element !== socket);
         };
+        
+        for (let subscribed of socket.subscribers) {
+          if (typeof subscriber === "undefined") continue;
+          subscribed.subscribed.filter((element) => element !== socket);
+        }
     });
     
 
