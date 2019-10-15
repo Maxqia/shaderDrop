@@ -110,7 +110,7 @@ finalPromise.then(() => {
 });
 
 function setupWRTC(clientID) {
-  wrtc.setTransport(ws.transport(connectedID));
+  wrtc.setTransport(ws.transport(clientID));
 }
 
 async function getConnected() {
@@ -247,10 +247,6 @@ function newClientMsgRecv(id, incomingData) {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
     
-    if (id === connectedID) {
-      wrtc.sigRecv(incomingData);
-      return;
-    }
     if (connectedID) {
       console.error("recieved unwanted message :" + id + ":" + incomingData);
       return;

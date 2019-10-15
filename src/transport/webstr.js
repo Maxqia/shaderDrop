@@ -24,7 +24,7 @@ export function createWritableStream(transport) {
     close() {
       transport.close();
     },
-  }, new ByteLengthQueuingStragegy({ highWaterMark: 16384 }); // 16KiB queue
+  }, new ByteLengthQueuingStrategy({ highWaterMark: 16384 })); // 16KiB queue
   return stream;
 }
 
@@ -32,9 +32,13 @@ export function createReadableStream(transport) {
   let stream = new ReadableStream({
     start(controller) {
       transport.defaultHandler = (data) => {
-        controller.enqueue(data);
+        let uint8View = new Uint8Array(data);
+        controller.enqueue(uint8View);
       };
+      transport.close.register(() => {
+        controller.close();
+      });
     },
-  }, new ByteLengthQueuingStragegy({ highWaterMark: 16384 }); // 16KiB queue
+  }, new ByteLengthQueuingStrategy({ highWaterMark: 16384 })); // 16KiB queue
   return stream;
 }

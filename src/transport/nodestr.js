@@ -71,7 +71,7 @@ export class RTCReadStream extends stream.Readable {
   
   onMessageRecv(data) {
     //console.error(data);
-    var uint8View = new Uint8Array(data);
+    let uint8View = new Uint8Array(data);
     this.push(uint8View);
   }
 }

@@ -74,10 +74,9 @@ class ShaderDropScanner extends React.Component {
   handleScan(content) {
     if (content == null) return;
 
+    this.lastScannedClient = content;
     let client = this.getClient(content);
-    if (client != null) {
-      this.lastScannedClient = client;
-    } else { // new client!
+    if (client == null) { // new client!
       this.transport.sendJSON({
         msgType: "subscribe",
         stringID: content,
@@ -164,7 +163,10 @@ class ShaderDropScanner extends React.Component {
   
   send() {
     if (this.lastScannedClient != null) {
-      this.connectClients(this.state.clients[this.state.selectedClient], this.lastScannedClient);
+      let client = this.getClient(this.lastScannedClient);
+      if (client != null) {
+        this.connectClients(this.state.clients[this.state.selectedClient], client);
+      }
     }
   }
   
