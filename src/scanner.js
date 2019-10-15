@@ -40,25 +40,17 @@ class QRReader extends React.Component {
 function Client(props) {
   if (props.client.sending) {
     return (
-      <button onClick={() => props.selectClient(props.client)}>
+      <button>
         {props.client.file.name}{" "}{props.client.file.size}{" "}{"sending"}
       </button>
     );
   } else {
     return (
-      <button onClick={() => props.selectClient(props.client)}>
+      <button>
         {props.client.stringID}{" "}{"recieving"}
       </button>
     );
   }
-}
-
-function File(props) {
-  return (
-    <button>
-      "This is a file"
-    </button>
-  );
 }
 
 class ShaderDropScanner extends React.Component {
@@ -67,6 +59,7 @@ class ShaderDropScanner extends React.Component {
     this.state = {
       clients: [],
       selectedClient: null,
+      lastScannedClient: null,
     };
     this.selectClient = this.selectClient.bind(this);
     this.handleScan = this.handleScan.bind(this);
@@ -74,6 +67,8 @@ class ShaderDropScanner extends React.Component {
     this.transport = new WebSocketTransport();
     this.transport.connect();
     this.transport.on("clientInfo", this.clientInfoHandler.bind(this));
+    
+    this.lastScannedClient = null;
   }
   
   handleScan(content) {
@@ -81,7 +76,7 @@ class ShaderDropScanner extends React.Component {
 
     let client = this.getClient(content);
     if (client != null) {
-      this.connectToSelected(client);
+      this.lastScannedClient = client;
     } else { // new client!
       this.transport.sendJSON({
         msgType: "subscribe",
@@ -128,11 +123,11 @@ class ShaderDropScanner extends React.Component {
       this.transport.sendToID(client.stringID, JSON.stringify({
           msgType : "scanned",
       }));
-      this.connectToSelected(client);
     }
     
     this.setState({
       clients: clients,
+      selectedClient: this.state.clients.length <= 0 ? 0 : this.state.selectedClient,
     });
   }
   
@@ -151,32 +146,49 @@ class ShaderDropScanner extends React.Component {
     }
   }
   
-  selectClient(client) {
-    if (this.state.selectedClient != client) {
-      this.setState({selectedClient: client});
-    } else {
-      this.setState({selectedClient: null});
+  selectClient(idxNum) {
+    if (isNaN(idxNum)) return;
+    if (this.state.clients.length <= 0) return;
+    if (idxNum < 0) return;
+    if (idxNum >= this.state.clients.length) return;
+    this.setState({selectedClient: idxNum});
+  }
+  
+  left() {
+    this.selectClient(this.state.selectedClient - 1);
+  }
+  
+  right() {
+    this.selectClient(this.state.selectedClient + 1);
+  }
+  
+  send() {
+    if (this.lastScannedClient != null) {
+      this.connectClients(this.state.clients[this.state.selectedClient], this.lastScannedClient);
     }
   }
   
   render() {
-    let clientList = this.state.clients.map((client) => {
-      return (<li key={client.stringID}> <Client client={client} selectClient={this.selectClient}/> </li>);
-    });
+    var clientSelected = <button>No Clients Available</button>
+    if (this.state.selectedClient != null) {
+      clientSelected = <Client client={this.state.clients[this.state.selectedClient]}/>;
+    }
     
     return (
       <div id="reactapp">
-        <div className="qrContainer">
-          <QRReader 
-            onError={(error) => console.error(error)}
-            onScan={(data) => this.handleScan(data)}
-            facingMode="environment"
-          />
-        </div>
-        <div id="lists">
-          <div className="list">
-            <h1>Clients</h1>
-            <ul>{clientList}</ul>
+        <QRReader 
+          onError={(error) => console.error(error)}
+          onScan={(data) => this.handleScan(data)}
+          facingMode="environment"
+        />
+        <div id="bottomBar">
+          <div id="clientSelector">
+            <button className="bt" id="leftBt" onClick={() => this.left()}>&lt;</button>
+            {clientSelected}
+            <button className="bt" id="rightBt" onClick={() => this.right()}>&gt;</button>
+          </div>
+          <div id="sendDiv">
+            <button onClick={() => this.send()}>Connect</button>
           </div>
         </div>
       </div>

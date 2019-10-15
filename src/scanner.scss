@@ -1,52 +1,73 @@
-html, body, #root, #reactapp {
+@import "~bootstrap/scss/bootstrap";
+
+
+/* fullscreen setup */
+html {
   height: 100%;
-  width: 100%;
+}
+
+body {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#root {
+  height: 100%;
   margin: 0;
   padding: 0;
 }
+/* end fullscreen setup */
 
 #reactapp {
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
   display: flex;
+  
   flex-direction: column;
+  justify-content: flex-end;
+  
+  background-color: black;
 }
+
+/* bottomBar styling */
+#bottomBar {
+  border-top: 1px solid white;
+  padding-top: 10px;
+}
+
+#clientSelector {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+#sendDiv {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1vh;
+}
+
+#leftBt {
+  margin-right: 10px;
+}
+
+#rightBt {
+  margin-left:  10px;
+}
+
+.bt {
+  /*width: 24px;
+  height: 24px;*/
+}
+/* end bottomBar styling */
 
 #preview {
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-  
-  border-style: solid;
-  border-width: thin;
-}
-
-#qrContainer {
-  height: 33%;
-}
-
-// list formatting
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-
-// list formatting for borders
-h1 {
-  border-bottom: 1px solid black;
-  margin-bottom: 0;
-}
-ul li {
-  border-bottom: 1px solid black; 
-}
-// end
-
-$list-margin: 5%;
-#lists {
-  margin: $list-margin;
-  width: 100%-(2*$list-margin);
-  height: 100%-(2*$list-margin);
-}
-
-.list {
-  height: 50% - $list-margin;
+  margin-top: 5vh;
+  object-fit: cover;
 }
