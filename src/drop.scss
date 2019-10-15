@@ -8,12 +8,27 @@ html, body, #root, #reactapp {
   padding: 0;
 }
 
+
 #client {
-  margin: 15px;
+  padding-left: 15%;
+  padding-right: 15%;
+  padding-top: 5%;
+  padding-bottom: 5%;
 }
 
-#client * {
+#qr {
   display: flex;
   justify-content: center;
   margin: 3px;
+}
+
+.fileDrop {
+  border-style: dotted;
+  border-color: black;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+#fileElem {
+  display: none;
 }

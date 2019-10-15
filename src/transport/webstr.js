@@ -18,11 +18,14 @@ export function createWritableStream(transport) {
           transport.send(fragChunk);
           return transport.bufferLow();
         });
+        bytePos += sendBytes;
       }
       return currentPromise;
     },
     close() {
-      transport.close();
+      return transport.bufferEmpty().then(() => {
+        transport.disconnect();
+      });
     },
   }, new ByteLengthQueuingStrategy({ highWaterMark: 16384 })); // 16KiB queue
   return stream;
@@ -41,4 +44,8 @@ export function createReadableStream(transport) {
     },
   }, new ByteLengthQueuingStrategy({ highWaterMark: 16384 })); // 16KiB queue
   return stream;
+}
+
+export function fromBlob(file) {
+  return file.stream(); // TODO this isn't well supported, probably need to polyfill it
 }

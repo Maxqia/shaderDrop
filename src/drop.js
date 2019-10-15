@@ -15,37 +15,13 @@ import WebRTCTransport from "./transport/rtctransport.js";
 class FileDisplay extends Component {
   render() {
     return (
-      <div className="container-fluid border total-file olistitm">
-        <div className="row file-and-code">
-          <div className="col-4 file-name">
+      <div>
+        <div>
+          <div>
             {this.props.file.name}
           </div>
-          <div className="col-8 code">
-            <div className="container">
-              <div className="row">
-                <div className="col"><QRCode value={this.props.file.stringID}/></div>
-                <div className="col">grab link : {this.props.file.stringID}</div>
-              </div>
-              <div className="row">
-                <div className="container">
-                  <div className="row"><div className="col text-center">Transfer Status</div></div>
-                  <div className="row"><div className="col text-center">0% - Not Started</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col">
-            keep open until it transfers
-          </div>
-          <div className="col">
-            <div className="container">
-              <div className="row justify-content-end">
-                <div className="col-auto text-right">connected directly</div>
-                <div className="col-auto"><status-indicator intermediary></status-indicator></div>
-              </div>
-            </div>
+          <div>
+            {this.props.file.size}
           </div>
         </div>
       </div>
@@ -53,27 +29,19 @@ class FileDisplay extends Component {
   }
 }
 
-class ClientDisplay extends Component {
-  render() {
-    return (
-      <div id="client">
-        <div>
-          <div>
-            {this.props.fileInfo.name}
-          </div>
-          <div>
-            {this.props.file.size}
-          </div>
-        </div>
-        <div>
-          {/* progress bar */}
-        </div>
-        <div>
-          {this.props.transferState /* transfer status */}
+function StateDisplay(props) {
+  return (
+    <div>
+      <div>
+        <div className="progress">
+          <div className="progress-bar" role="progressbar" style={{ width: props.percentDone}} aria-valuenow={props.percentDone} aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
-    );
-  }
+      <div className="text-center">
+        {props.transferState /* transfer status */}
+      </div>
+    </div>
+  );
 }
 
 // calls onFileDrop with a SyntheticFile object containing a stream
@@ -101,10 +69,8 @@ class FileDrop extends Component {
     var file = {
       name: "paste.txt",
       size: textBlob.size,
-      type: textBlob.type,
-      stream: textBlob.stream(),
     };
-    this.props.onFileDrop(file);
+    this.props.onFileDrop(file, WebStr.fromBlob(textBlob));
     
     this.setState({text: ""});
   }
@@ -117,61 +83,56 @@ class FileDrop extends Component {
   onDrop(event) {
     this.preventDefaults(event);
     console.log(event);
+    
+    console.log(event.dataTransfer);
+    
+    let fileList = [];
+    
+    if (event.dataTransfer.items) {
+      for (let i = 0; i < event.dataTransfer.items.length; i++) {
+        if( event.dataTransfer.items[i].kind === "file" ) {
+          let file = event.dataTransfer.items[i].getAsFile();
+          fileList.push(file);
+        }
+      }
+    } else {
+      fileList.push(event.dataTransfer.files);
+    }
+    console.log(fileList);
+    
+    if (fileList.length >= 1) {
+      if (fileList.length > 1) console.error("more than one file not supported!");
+      this.dropFile(fileList[0]);
+    }
+  }
+  
+  dropFile(file) {
+    let fileInfo = {
+      name: file.name,
+      size: file.size,
+    }
+    let readableStream = WebStr.fromBlob(file);
+    this.props.onFileDrop(fileInfo, readableStream);
   }
   
   render() {
     return (
-      <div className="container-fluid border olistitm">
-        <div>Drop File (or paste text!)</div>
-        <div id="drop" 
+      <div className="fileDrop"
           onDragEnter={this.preventDefaults}
           onDragOver={this.preventDefaults}
           onDragLeave={this.preventDefaults}
           onDrop={this.onDrop}
-        >
+      >
+        <div>Drop File </div>
+        <div id="drop">
           <form>
             <input type="file" id="fileElem"/>
-            <label htmlFor="fileElem">Select File</label>
+            <input type="button" value="Attach File"/>
           </form>
         </div>
+        <div>(or paste text!)</div>
         <form onSubmit={this.handleSubmitText}>
           <textarea value={this.state.text} onChange={this.handleEvent}></textarea>
-          <button>Submit</button>
-        </form>
-      </div>
-    );
-  }
-}
-
-class ShowClient extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      text: "",
-    };
-    
-    this.handleEvent = this.handleEvent.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-  
-  handleEvent(event) {
-    this.setState({text: event.target.value});
-  }
-  
-  handleSubmit(event) {
-    event.preventDefault();
-    console.log(this.state.text);
-    this.setState({text: ""});
-  }
-  
-  render() {
-    return (
-      <div className="olistitm">
-        <div>Scan to add files</div>
-        <QRCode value={this.props.client.stringID}/>
-        <div>or enter id of file directly</div>
-        <form onSubmit={this.handleSubmit}>
-          <input type="text" value={this.state.text} onChange={this.handleEvent} />
           <button>Submit</button>
         </form>
       </div>
@@ -191,6 +152,8 @@ class ShaderDropDropper extends Component {
       sending: false,
     };
     
+    this.updateServer = this.updateServer.bind(this);
+    
     this.ws = new WebSocketTransport();
     this.wrtc = new WebRTCTransport(); 
     this.ws.msgRecv = this.newClientMsgRecv.bind(this);
@@ -201,9 +164,11 @@ class ShaderDropDropper extends Component {
   }
   
   render() {
-    let fileDisplay = null;
+    let fileComponent = null;
     if (this.state.hasFile) {
-      fileDisplay = <ClientDisplay file={this.state.fileInfo} transferState={this.state.transferState}/>;
+      fileComponent = <FileDisplay file={this.state.fileInfo} />;
+    } else {
+      fileComponent = <FileDrop onFileDrop={this.onFileDrop.bind(this)}/>
     }
     
     let idDisplay = null;
@@ -218,8 +183,11 @@ class ShaderDropDropper extends Component {
             <status-indicator intermediary></status-indicator>
           </div>
         </nav>
-        {idDisplay}
-        {fileDisplay}
+        <div id="client">
+          <div id="qr">{idDisplay}</div>
+          <StateDisplay transferState={this.state.transferState} percentDone={50}/>
+          {fileComponent}
+        </div>
       </div>
     );
   }
@@ -293,12 +261,24 @@ class ShaderDropDropper extends Component {
       await readStream.pipeTo(writeStream);
       this.transferMsg("Done!");
     } else {
-      // TODO implement sending
+      await this.wrtc.open.promise();
+      let fileInfo = this.state.fileInfo;
+      this.wrtc.sendJSON(fileInfo);
+      let writeStream = WebStr.createWritableStream(this.wrtc);
+      await this.stream.pipeTo(writeStream);
+      this.transferMsg("Done!");
     }
   }
+  
+  onFileDrop(fileInfo, stream) {
+    fileInfo.msgType = "fileInfo";
+    this.setState({
+      fileInfo: fileInfo,
+      sending: true,
+      hasFile: true,
+    }, this.updateServer);
+    this.stream = stream;
+  }
 }
-
-
-
 
 ReactDOM.render(<ShaderDropDropper/>, document.getElementById('root'));
