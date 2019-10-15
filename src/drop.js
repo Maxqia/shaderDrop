@@ -49,6 +49,32 @@ class FileDisplay extends Component {
   }
 }
 
+class ClientDisplay extends Component {
+  render() {
+    return (
+      <div id="client">
+        <div>
+          <QRCode value={this.props.client.stringID}/>
+        </div>
+        <div>
+          <div>
+            {this.props.client.file.name}
+          </div>
+          <div>
+            {this.props.client.file.size}
+          </div>
+        </div>
+        <div>
+          {/* progress bar */}
+        </div>
+        <div>
+          {"Not Connected" /* transfer status */}
+        </div>
+      </div>
+    );
+  }
+}
+
 // calls onFileDrop with a SyntheticFile object containing a stream
 class FileDrop extends Component {
   constructor(props) {
@@ -155,6 +181,10 @@ class ShowClient extends Component {
 class ShaderDropDropper extends Component {
   constructor(props) {
     super(props);
+    
+    this.state = {
+      client: FakeClient,
+    };
   }
   
   render() {
@@ -162,14 +192,11 @@ class ShaderDropDropper extends Component {
       <div id="reactapp">
         <nav className="navbar navbar-light bg-light">
           <div className="container-fluid">
-            <a className="navbar-brand" href="#">shaderDrop - your files, delivered!!!</a>
+            <a className="navbar-brand" href="#">shaderDrop</a>
+            <status-indicator intermediary></status-indicator>
           </div>
         </nav>
-        <ul>
-          <li> <FileDisplay file={FakeFile}/> </li>
-          <li> <FileDrop/> </li>
-          <li> <ShowClient client={FakeClient}/> </li>
-        </ul>
+        <ClientDisplay client={this.state.client}/>
       </div>
     );
   }

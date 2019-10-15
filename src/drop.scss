@@ -8,18 +8,12 @@ html, body, #root, #reactapp {
   padding: 0;
 }
 
-ul {
-  list-style-type: none;
-  margin: 5%;
-  padding: 0;
+#client {
+  margin: 15px;
 }
 
-.olistitm {
-  height: 230px;
-}
-
-#drop {
-  @extend .bg-secondary;
-  width: 128px;
-  height: 128px;
+#client * {
+  display: flex;
+  justify-content: center;
+  margin: 3px;
 }
