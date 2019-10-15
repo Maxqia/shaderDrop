@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom';
 import Instascan from '@eventstag/instascan';
 
 import "./scanner.scss";
-import WebSocketTransport from './wstransport.js';
+import WebSocketTransport from './transport/wstransport.js';
 import {FakeClient} from './TestObject.js';
 
 class QRReader extends React.Component {

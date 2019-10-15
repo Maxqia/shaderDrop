@@ -3,7 +3,7 @@ import WebSocket from 'isomorphic-ws';
 var nacl = require('tweetnacl');
 nacl.util = require('tweetnacl-util');
 
-import {FutureValue} from './event.js';
+import {FutureValue} from '../event.js';
 import {Transport, MessageHandler} from './transport.js';
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0; // HACK : ignore self signed certificate

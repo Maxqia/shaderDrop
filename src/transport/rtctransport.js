@@ -3,7 +3,7 @@
 import {RTCPeerConnection, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
 
 import {Transport} from './transport.js';
-import {FutureEvent} from './event.js';
+import {FutureEvent} from '../event.js';
 
 export default class WebRTCTransport extends Transport {
   constructor() {
