@@ -64,8 +64,7 @@ class FileDrop extends Component {
   
   handleSubmitText(event) {
     event.preventDefault();
-    console.log(this.state.text);
-    var textBlob = new Blob(this.state.text, {type: "text/plain"});
+    var textBlob = new Blob([this.state.text], {type: "text/plain"});
     
     var file = {
       name: "paste.txt",
