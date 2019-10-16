@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import QRCode from 'qrcode.react';
 import StreamSaver from 'streamsaver';
+import bytes from 'bytes';
 
 import "./drop.scss";
 import {FakeFile, FakeClient} from "./TestObject.js";
@@ -21,7 +22,7 @@ class FileDisplay extends Component {
             {this.props.file.name}
           </div>
           <div>
-            {this.props.file.size}
+            {bytes(this.props.file.size)}
           </div>
         </div>
       </div>
@@ -34,7 +35,7 @@ function StateDisplay(props) {
     <div>
       <div>
         <div className="progress">
-          <div className="progress-bar" role="progressbar" style={{ width: props.percentDone}} aria-valuenow={props.percentDone} aria-valuemin="0" aria-valuemax="100"></div>
+          <div className="progress-bar" role="progressbar" style={{ width: props.percentDone+'%'}} aria-valuenow={props.percentDone} aria-valuemin="0" aria-valuemax="100"></div>
         </div>
       </div>
       <div className="text-center">
@@ -146,10 +147,11 @@ class ShaderDropDropper extends Component {
     
     this.state = {
       fileInfo: null,
-      transferState: "Not Connected",
       hasFile: false,
       id: null,
       sending: false,
+      transferState: "Not Connected",
+      transferPercent: 0,
     };
     
     this.updateServer = this.updateServer.bind(this);
@@ -173,7 +175,12 @@ class ShaderDropDropper extends Component {
     
     let idDisplay = null;
     if (this.state.id != null) {
-      idDisplay = <QRCode value={this.state.id}/>;
+      idDisplay = (
+        <div>
+          <div className="qr"><QRCode value={this.state.id}/></div>
+          <div className="text-center">{this.state.id}</div>
+        </div>
+      );
     }
     return (
       <div id="reactapp">
@@ -184,8 +191,8 @@ class ShaderDropDropper extends Component {
           </div>
         </nav>
         <div id="client">
-          <div id="qr">{idDisplay}</div>
-          <StateDisplay transferState={this.state.transferState} percentDone={50}/>
+          {idDisplay}
+          <StateDisplay transferState={this.state.transferState} percentDone={this.state.transferPercent}/>
           {fileComponent}
         </div>
       </div>
@@ -248,7 +255,19 @@ class ShaderDropDropper extends Component {
   }
   
   async onNewRemote() {
-    if (!this.state.sending) {
+    if (this.state.sending) {
+      await this.wrtc.open.promise();
+      this.transferMsg("Connected");
+      let fileInfo = this.state.fileInfo;
+      this.wrtc.sendJSON(fileInfo);
+      let writeStream = WebStr.createWritableStream(this.wrtc);
+      
+      let progress = new WebStr.CountingStream(fileInfo.size, this.updateProgress.bind(this));
+      this.stream.pipeTo(progress.writable);
+      await progress.readable.pipeTo(writeStream);
+      
+      this.transferMsg("Done!");
+    } else {
       console.log("window.isSecureContext : " + window.isSecureContext);
       let readStream = WebStr.createReadableStream(this.wrtc);
       let fileInfo = await this.wrtc.next('fileInfo');
@@ -258,14 +277,9 @@ class ShaderDropDropper extends Component {
         size: fileInfo.size,
       });
       
-      await readStream.pipeTo(writeStream);
-      this.transferMsg("Done!");
-    } else {
-      await this.wrtc.open.promise();
-      let fileInfo = this.state.fileInfo;
-      this.wrtc.sendJSON(fileInfo);
-      let writeStream = WebStr.createWritableStream(this.wrtc);
-      await this.stream.pipeTo(writeStream);
+      let progress = new WebStr.CountingStream(fileInfo.size, this.updateProgress.bind(this));
+      readStream.pipeTo(progress.writable);
+      await progress.readable.pipeTo(writeStream);
       this.transferMsg("Done!");
     }
   }
@@ -278,6 +292,14 @@ class ShaderDropDropper extends Component {
       hasFile: true,
     }, this.updateServer);
     this.stream = stream;
+  }
+  
+  updateProgress(percentDone, bps) {
+    percentDone = percentDone * 100;
+    this.setState({
+      transferState: "Transfering : "+percentDone.toFixed(2)+"% ["+bytes(bps)+"/s]",
+      transferPercent: percentDone,
+    });
   }
 }
 

@@ -49,3 +49,32 @@ export function createReadableStream(transport) {
 export function fromBlob(file) {
   return file.stream(); // TODO this isn't well supported, probably need to polyfill it
 }
+
+export class CountingStream extends TransformStream {
+  constructor(size, updateProgress) {
+    super({
+      transform: (chunk, controller) => {
+        this.bytesTransfered += chunk.length;
+        controller.enqueue(chunk);
+      },
+      flush: (controller) => {
+        this.update();
+        clearInterval(this.intervalID);
+      }
+    });
+    this.startingTime = new Date();
+    this.bytesTotal = size;
+    this.bytesTransfered = 0;
+    this.intervalID = setInterval(this.update.bind(this), 100);
+    this.updateProgress = updateProgress;
+    this.update();
+  }
+  
+  update() {
+    let currentTime = new Date();
+    let diffTime = currentTime - this.startingTime; // in miliseconds
+    let bps = this.bytesTransfered / (diffTime/1000);
+    let percentDone = this.bytesTransfered / this.bytesTotal;
+    this.updateProgress(percentDone, bps);
+  }
+}
