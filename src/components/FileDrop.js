@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import classNames from 'classnames';
 
+import * as WebStr from "../transport/webstr.js";
+
 // calls onFileDrop with a SyntheticFile object containing a stream
 export class FileDrop extends Component {
   constructor(props) {

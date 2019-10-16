@@ -8,10 +8,29 @@ html, body, #root, #reactapp {
   padding: 0;
 }
 
+.max-width {
+  display:flex;
+  justify-content: center;
+
+}
+
+.max-width > * {
+  width: 100%;
+  /*@extend .border-secondary;
+  border-left: 1px solid;
+  border-right: 1px solid;*/
+}
+
+$break-point: 1000px;
+@media (min-width: $break-point) {
+  .max-width > * {
+    width: $break-point;
+  }
+}
 
 .client {
-  padding-left: 15%;
-  padding-right: 15%;
+  padding-left: 12%;
+  padding-right: 12%;
   padding-top: 5%;
   padding-bottom: 5%;
 }
@@ -23,6 +42,10 @@ html, body, #root, #reactapp {
 }
 
 .id {
+  margin: 10px;
+}
+
+.progressDiv {
   margin: 10px;
 }
 

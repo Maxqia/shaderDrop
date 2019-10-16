@@ -42,18 +42,24 @@ class ShaderDropDropper extends Component {
   
   render() {
     return (
-      <div id="reactapp">
-        <nav className="navbar navbar-light bg-light">
-          <div className="container-fluid">
-            <a className="navbar-brand" href="#">shaderDrop</a>
-            <status-indicator intermediary></status-indicator>
+      <div id="reactapp" className="">
+        <div className="max-width">
+          <div className="">
+            <nav className="navbar navbar-light bg-light">
+              <div className="container-fluid">
+                <a className="navbar-brand" href="#">shaderDrop</a>
+                <status-indicator intermediary></status-indicator>
+              </div>
+            </nav>
           </div>
-        </nav>
-        <div className="client">
-          <IDDisplay id={this.state.id}/>
-          <StateDisplay transferState={this.state.transferState} percentDone={this.state.transferPercent}/>
-          <FileDropDisplay file={this.state.fileInfo} onFileDrop={this.onFileDrop.bind(this)}/>
         </div>
+        <div className="max-width"> <div>
+          <div className="client">
+            <IDDisplay id={this.state.id}/>
+            <StateDisplay className="progressDiv" transferState={this.state.transferState} percentDone={this.state.transferPercent}/>
+            <FileDropDisplay file={this.state.fileInfo} onFileDrop={this.onFileDrop.bind(this)}/>
+          </div>
+        </div> </div>
       </div>
     );
   }
@@ -161,5 +167,10 @@ class ShaderDropDropper extends Component {
     });
   }
 }
+
+/* Prevent Opening of Dropped Files */
+document.addEventListener("dragover", (event) => event.preventDefault());
+document.addEventListener("dragenter", (event) => event.preventDefault());
+document.addEventListener("drop", (event) => event.preventDefault());
 
 ReactDOM.render(<ShaderDropDropper/>, document.getElementById('root'));

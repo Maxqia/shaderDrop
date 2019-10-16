@@ -8,12 +8,12 @@ import { FileDrop } from "./FileDrop.js"
 export class FileDisplay extends Component {
   render() {
     return (
-      <div className={classNames(props.className)}>
-        <div>
-          <div>
+      <div className={classNames(this.props.className, "container")}>
+        <div className="row">
+          <div className="col">
             {this.props.file.name}
           </div>
-          <div>
+          <div className="col text-right">
             {bytes(this.props.file.size)}
           </div>
         </div>
@@ -39,7 +39,7 @@ export function StateDisplay(props) {
 
 export function FileDropDisplay(props) {
   if (props.file != null) {
-    return <FileDisplay file={props.fileInfo} className={props.className}/>;
+    return <FileDisplay file={props.file} className={props.className}/>;
   } else {
     return <FileDrop onFileDrop={props.onFileDrop} className={props.className}/>
   }
