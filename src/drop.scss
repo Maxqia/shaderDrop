@@ -9,7 +9,7 @@ html, body, #root, #reactapp {
 }
 
 
-#client {
+.client {
   padding-left: 15%;
   padding-right: 15%;
   padding-top: 5%;
@@ -20,6 +20,10 @@ html, body, #root, #reactapp {
   display: flex;
   justify-content: center;
   margin: 3px;
+}
+
+.id {
+  margin: 10px;
 }
 
 .fileDrop {

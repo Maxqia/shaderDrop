@@ -46,6 +46,7 @@
     "@eventstag/instascan": "^2.0.1",
     "bootstrap": "^4.3.1",
     "bytes": "^3.1.0",
+    "classnames": "^2.2.6",
     "esm": "^3.2.25",
     "isomorphic-ws": "^4.0.1",
     "jquery": "^3.4.1",
