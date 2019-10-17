@@ -3,8 +3,8 @@ import Instascan from '@eventstag/instascan';
 
 
 interface QRReaderProps {
-  className: string;
-  id: string;
+  className?: string;
+  facingMode?: string;
   onError: (error: any) => void;
   onScan: (data: string) => void;
 }
@@ -30,7 +30,7 @@ export class QRReader extends React.Component<QRReaderProps,{}> {
       } else {
         this.props.onError('No cameras found.');
       }
-    }).catch(function (e) {
+    }).catch((e) => {
       this.props.onError(e);
     });
   }

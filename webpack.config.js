@@ -3,7 +3,7 @@ var fs = require('fs');
 
 module.exports = {
   mode: 'development',
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -44,7 +44,7 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.jsx', '.js', '.json' ],
   },
   entry: {
-    scanner: './src/scanner.jsx',
+    scanner: './src/scanner.tsx',
     drop: './src/drop.tsx',
   },
   output: {
