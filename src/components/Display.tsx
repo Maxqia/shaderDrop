@@ -1,11 +1,17 @@
-import React, {Component} from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import bytes from 'bytes';
 import QRCode from 'qrcode.react';
 
-import { FileDrop } from "./FileDrop.js"
+import { FileDrop, FileDropFunc } from "./FileDrop";
+import { FileInfo } from "../TestObject";
 
-export class FileDisplay extends Component {
+interface FileDisplayProps {
+  className?: string;
+  file: FileInfo;
+}
+
+export class FileDisplay extends React.Component<FileDisplayProps, {}> {
   render() {
     return (
       <div className={classNames(this.props.className, "container")}>
@@ -22,12 +28,18 @@ export class FileDisplay extends Component {
   }
 }
 
-export function StateDisplay(props) {
+interface StateDisplayProps {
+  className?: string;
+  percentDone: number;
+  transferState: string;
+}
+
+export const StateDisplay: React.FC<StateDisplayProps> = (props) => {
   return (
     <div className={classNames(props.className)}>
       <div>
         <div className="progress">
-          <div className="progress-bar" role="progressbar" style={{ width: props.percentDone+'%'}} aria-valuenow={props.percentDone} aria-valuemin="0" aria-valuemax="100"></div>
+          <div className="progress-bar" role="progressbar" style={{ width: props.percentDone+'%'}} aria-valuenow={props.percentDone} aria-valuemin={0} aria-valuemax={100}></div>
         </div>
       </div>
       <div className="text-center">
@@ -37,7 +49,13 @@ export function StateDisplay(props) {
   );
 }
 
-export function FileDropDisplay(props) {
+interface FileDropDisplayProps {
+  className?: string;
+  file: FileInfo;
+  onFileDrop: FileDropFunc;
+}
+
+export const FileDropDisplay: React.FC<FileDropDisplayProps> = (props) => {
   if (props.file != null) {
     return <FileDisplay file={props.file} className={props.className}/>;
   } else {
@@ -45,7 +63,12 @@ export function FileDropDisplay(props) {
   }
 }
 
-export function IDDisplay(props) {
+interface IDDisplayProps {
+  className?: string;
+  id: string;
+}
+
+export const IDDisplay: React.FC<IDDisplayProps> = (props) => {
   if (props.id != null) {
     return (
       <div className={props.className}>

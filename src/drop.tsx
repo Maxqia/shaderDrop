@@ -7,16 +7,38 @@ import bytes from 'bytes';
 import classNames from 'classnames';
 
 import "./drop.scss";
-import {FakeFile, FakeClient} from "./TestObject.js";
+import { FakeFile, FakeClient, FileInfo } from "./TestObject";
 
 import * as WebStr from "./transport/webstr.js";
 import WebSocketTransport from "./transport/wstransport.js";
 import WebRTCTransport from "./transport/rtctransport.js";
 
-import { IDDisplay, StateDisplay, FileDropDisplay } from "./components/Display.js";
+import { IDDisplay, StateDisplay, FileDropDisplay } from "./components/Display";
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "status-indicator": any;
+    }
+  }
+}
 
-class ShaderDropDropper extends Component {
+interface DropperState {
+  fileInfo: FileInfo;
+  hasFile: boolean;
+  id: string;
+  sending: boolean;
+  transferState: string;
+  transferPercent: number;
+}
+
+class ShaderDropDropper extends React.Component<{},DropperState> {
+  ws: WebSocketTransport;
+  wrtc: WebRTCTransport;
+  
+  connectedID: string = null; // The Client We're currently connected to
+  stream: ReadableStream = null; // The File We're Streaming (if we have it)
+  
   constructor(props) {
     super(props);
     
@@ -34,7 +56,6 @@ class ShaderDropDropper extends Component {
     this.ws = new WebSocketTransport();
     this.wrtc = new WebRTCTransport(); 
     this.ws.msgRecv = this.newClientMsgRecv.bind(this);
-    this.connectedID = null;
     this.ws.id.register(this.getID.bind(this));
     
     this.ws.connect();

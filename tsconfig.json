@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "jsx": "react",
+    "sourceMap": true,
+    "traceResolution": true,
+    "esModuleInterop": true,
+    "module": "commonjs",
+    "target": "es6",
+    
+  }
+}

@@ -1,10 +1,21 @@
-import React, {Component} from 'react';
+import React, { DragEvent } from 'react';
 import classNames from 'classnames';
 
+import {FileInfo} from "../TestObject";
 import * as WebStr from "../transport/webstr.js";
 
+export type FileDropFunc = (fileInfo: FileInfo, readableStream: ReadableStream) => void;
+interface FileDropProps {
+  className: string;
+  onFileDrop: FileDropFunc;
+}
+
+interface FileDropState {
+  text: string;
+}
+
 // calls onFileDrop with a SyntheticFile object containing a stream
-export class FileDrop extends Component {
+export class FileDrop extends React.Component<FileDropProps, FileDropState> {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,7 +49,7 @@ export class FileDrop extends Component {
     e.stopPropagation();
   }
   
-  onDrop(event) {
+  onDrop(event: DragEvent) {
     this.preventDefaults(event);
     console.log(event);
     
@@ -64,7 +75,7 @@ export class FileDrop extends Component {
     }
   }
   
-  dropFile(file) {
+  dropFile(file: File) {
     let fileInfo = {
       name: file.name,
       size: file.size,

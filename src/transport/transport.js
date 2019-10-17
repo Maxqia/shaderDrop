@@ -1,6 +1,6 @@
 'use strict';
 
-import {FutureEvent} from '../event.js';
+import {FutureEvent} from '../event.ts';
 
 export class MessageHandler {
   constructor() {

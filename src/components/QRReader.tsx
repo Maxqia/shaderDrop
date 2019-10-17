@@ -1,7 +1,16 @@
 import React from 'react';
 import Instascan from '@eventstag/instascan';
 
-export class QRReader extends React.Component {
+
+interface QRReaderProps {
+  className: string;
+  id: string;
+  onError: (error: any) => void;
+  onScan: (data: string) => void;
+}
+
+export class QRReader extends React.Component<QRReaderProps,{}> {
+  scanner: Instascan.Scanner = null;
   constructor(props) {
     super(props);
   }

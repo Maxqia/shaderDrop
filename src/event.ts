@@ -1,21 +1,19 @@
 'use strict';
 
-
-export class FutureEvent {
+export class FutureEvent<T> {
+  callback: { (optData? : T): any }[] = [];
+  resolved: boolean = false;
   constructor() {
-    this.callback = [];
-    this.resolved = false;
-    
     this.register = this.register.bind(this);
     this.fire = this.fire.bind(this);
     this.promise = this.promise.bind(this);
   }
-  
-  register(callback) {
+
+  register(callback : { (optData? : T): any }): void {
     this.callback.push(callback);
   }
-  
-  fire(optData) {
+
+  fire(optData : T): void {
     for (let callback of this.callback) {
       if (typeof callback === "function") {
         callback(optData);
@@ -24,25 +22,25 @@ export class FutureEvent {
     this.callback = [];
     this.resolved = true;
   }
-  
-  promise(timeout, timeoutMsg) {
+
+  promise(timeout?: number, timeoutMsg?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       if (timeout != undefined) {
         setTimeout(() => reject(timeoutMsg), timeout);
       }
-      
+
       this.register(resolve);
     });
   }
 }
 
-export class FutureValue {
+export class FutureValue<T> {
+  value: T = null;
+  callback: { (value? : T): any }[] = [];
   constructor() {
-    this.value = null;
-    this.callback = [];
   }
-  
-  setValue(value) {
+
+  setValue(value : T) {
     this.value = value;
     for (let callback of this.callback) {
       if (typeof callback === "function") {
@@ -51,23 +49,23 @@ export class FutureValue {
     }
     this.callback = [];
   }
-  
+
   // calls callback with value once it's available
-  register(callback) {
+  register(callback : { (value? : T): any }) {
     this.callback.push(callback);
   }
-  
-  get(timeout, timeoutMsg) {
+
+  get(timeout?: number, timeoutMsg?: string): Promise<T> {
     return new Promise((resolve, reject) => {
       if (timeout != undefined) {
         setTimeout(() => reject(timeoutMsg), timeout);
       }
-      
+
       if (this.value != null) {
         resolve(this.value);
         return;
       }
-      
+
       this.register(resolve);
     });
   }

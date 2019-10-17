@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom';
 
 import "./scanner.scss";
 import WebSocketTransport from './transport/wstransport.js';
-import {FakeClient} from './TestObject.js';
+import {FakeClient} from './TestObject.ts';
 
-import { QRReader } from './components/QRReader.js';
+import { QRReader } from './components/QRReader.tsx';
 
 function Client(props) {
   if (props.client.sending) {

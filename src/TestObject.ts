@@ -16,4 +16,16 @@ var FakeClient = {
   file: FakeFile,
 };
 
+
+export interface FileInfo {
+  name: string;
+  size: number;
+  type?: string;
+}
+
+export interface Client {
+  stringID: string;
+  file: File;
+}
+
 export {FakeFile, FakeClient};

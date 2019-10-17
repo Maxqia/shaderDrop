@@ -3,9 +3,14 @@ var fs = require('fs');
 
 module.exports = {
   mode: 'development',
-  devtool: 'eval-source-map',
+  devtool: 'inline-source-map',
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -35,9 +40,12 @@ module.exports = {
       },
     ],
   },
+  resolve: {
+    extensions: [ '.tsx', '.ts', '.jsx', '.js', '.json' ],
+  },
   entry: {
-    scanner: './src/scanner.js',
-    drop: './src/drop.js',
+    scanner: './src/scanner.jsx',
+    drop: './src/drop.tsx',
   },
   output: {
     filename: '[name].js',
