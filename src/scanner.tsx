@@ -3,10 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import "./scanner.scss";
-import WebSocketTransport from './transport/wstransport.js';
+import WebSocketTransport from './transport/wstransport';
 import { FileInfo, Client, isValidClient, FakeClient} from './TestObject';
 
-import { QRReader } from './components/QRReader.tsx';
+import { QRReader } from './components/QRReader';
 
 interface ClientProps {
   client: Client;

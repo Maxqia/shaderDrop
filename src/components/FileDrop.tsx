@@ -2,7 +2,7 @@ import React, { DragEvent } from 'react';
 import classNames from 'classnames';
 
 import {FileInfo} from "../TestObject";
-import * as WebStr from "../transport/webstr.js";
+import * as WebStr from "../transport/webstr";
 
 export type FileDropFunc = (fileInfo: FileInfo, readableStream: ReadableStream) => void;
 interface FileDropProps {

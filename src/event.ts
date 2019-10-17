@@ -13,7 +13,7 @@ export class FutureEvent<T> {
     this.callback.push(callback);
   }
 
-  fire(optData : T): void {
+  fire(optData?: T): void {
     for (let callback of this.callback) {
       if (typeof callback === "function") {
         callback(optData);

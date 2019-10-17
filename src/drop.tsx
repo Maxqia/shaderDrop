@@ -9,9 +9,9 @@ import classNames from 'classnames';
 import "./drop.scss";
 import { FakeFile, FakeClient, FileInfo } from "./TestObject";
 
-import * as WebStr from "./transport/webstr.js";
-import WebSocketTransport from "./transport/wstransport.js";
-import WebRTCTransport from "./transport/rtctransport.js";
+import * as WebStr from "./transport/webstr";
+import WebSocketTransport from "./transport/wstransport";
+import WebRTCTransport from "./transport/rtctransport";
 
 import { IDDisplay, StateDisplay, FileDropDisplay } from "./components/Display";
 

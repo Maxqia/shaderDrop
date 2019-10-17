@@ -1,34 +1,27 @@
 'use strict';
 //import adapter from 'webrtc-adapter';
-import {RTCPeerConnection, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
+import {RTCPeerConnection, RTCDataChannel, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
 
-import {Transport} from './transport.js';
-import {FutureEvent} from '../event.ts';
+import {Transport} from './transport';
+import {FutureEvent} from '../event';
 
 export default class WebRTCTransport extends Transport {
+  pc: RTCPeerConnection = null;
+  dc: RTCDataChannel = null;
+  transport: Transport = null;
+  bufferEvent: FutureEvent<any> = new FutureEvent();
+  
   constructor() {
-    super();
-    this.pc = null;
-    this.dc = null;
-
-    this.transport = new Transport();
-    // public interface
-    this.msgRecv = (msg) => console.error("default message handler called! : " + msg);
-    /* this.bufferLow */
-    // end public interface
-    
-    this.bufferEvent = new FutureEvent();
-    
+    super(); 
     this.newPeerConnection();
   }
-
   
-  setTransport(transport) {
+  setTransport(transport: Transport): void {
     this.transport = transport;
     this.setupRecv();
   }
   
-  setupRecv() {
+  setupRecv(): void {
     var reportError = (error) => this.log(error);
     this.transport.on("offer", (data) => this.sendAnswer(data.sdp).catch(reportError));
     this.transport.on("new-ice-candidate", (data) => {
@@ -41,7 +34,7 @@ export default class WebRTCTransport extends Transport {
     });
   }
   
-  newPeerConnection() {
+  newPeerConnection(): void {
     this.pc = new RTCPeerConnection ({
       iceServers: [
         {
@@ -59,7 +52,7 @@ export default class WebRTCTransport extends Transport {
   }
   
   // might be called twice...
-  recieveChannel(channel) {
+  recieveChannel(channel: RTCDataChannel): void {
     this.dc = channel;
     
     this.dc.onopen = (event) => {
@@ -76,7 +69,7 @@ export default class WebRTCTransport extends Transport {
     this.setupBufferEvent();
   }
   
-  async sendOffer() {
+  async sendOffer(): Promise<void> {
     this.recieveChannel(this.pc.createDataChannel('stuff', { ordered: true }));
     var offer = await this.pc.createOffer();
     await this.pc.setLocalDescription(offer);
@@ -86,7 +79,7 @@ export default class WebRTCTransport extends Transport {
     });
   }
 
-  async sendAnswer(sdp) {
+  async sendAnswer(sdp: string): Promise<void> {
     var desc = new RTCSessionDescription(sdp);
     await this.pc.setRemoteDescription(desc);
     var answer = await this.pc.createAnswer();
@@ -97,7 +90,7 @@ export default class WebRTCTransport extends Transport {
     }); 
   }
 
-  handleIceCandidateEvent(event) {
+  handleIceCandidateEvent(event: any): void {
     if (event.candidate) {
       this.transport.sendJSON({
         msgType: "new-ice-candidate",
@@ -106,11 +99,11 @@ export default class WebRTCTransport extends Transport {
     }
   }
   
-  send(data) {
+  send(data: any): void {
     this.dc.send(data);
   }
 
-  bufferLow() {
+  bufferLow(): Promise<void> {
     this.setupBufferEvent();
     return new Promise((resolve, reject) => {
       var testFunc = () => {
@@ -129,14 +122,14 @@ export default class WebRTCTransport extends Transport {
     });
   }
   
-  setupBufferEvent() {
+  setupBufferEvent(): void {
     if (this.bufferEvent.resolved) {
       this.bufferEvent = new FutureEvent();
     }
     this.dc.onbufferedamountlow = this.bufferEvent.fire;
   }
   
-  bufferEmpty() {
+  bufferEmpty(): Promise<void> {
     return new Promise((resolve, reject) => {
       var testFunc = () => {
         if (this.dc.bufferedAmount <= 0) {
@@ -149,7 +142,7 @@ export default class WebRTCTransport extends Transport {
     });
   }
   
-  disconnect() {
+  disconnect(): void {
     this.dc.close();
   }
 } 

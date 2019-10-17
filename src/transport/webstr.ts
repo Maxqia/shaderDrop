@@ -1,11 +1,12 @@
+import WebRTCTransport from './rtctransport';
 
 /* Web-Browser based Streams */
 
-export function createWritableStream(transport) {
+export function createWritableStream(transport: WebRTCTransport) : WritableStream {
   let stream = new WritableStream({
     start(controller) {
     },
-    write(chunk, controller) {
+    write(chunk: Uint8Array, controller) {
       // fragment chunk
       const fragSize = 16384; // 16KiB (most common RTCDataChannel Message Maximum is 16KiB)
       let currentPromise = transport.bufferLow();
@@ -31,7 +32,7 @@ export function createWritableStream(transport) {
   return stream;
 }
 
-export function createReadableStream(transport) {
+export function createReadableStream(transport: WebRTCTransport) : ReadableStream {
   let stream = new ReadableStream({
     start(controller) {
       transport.defaultHandler = (data) => {
@@ -50,8 +51,15 @@ export function fromBlob(file) {
   return file.stream(); // TODO this isn't well supported, probably need to polyfill it
 }
 
+export type ProgCallback = (percentDone: number, bps: number) => null;
 export class CountingStream extends TransformStream {
-  constructor(size, updateProgress) {
+  startingTime: Date;
+  bytesTotal: number;
+  bytesTransfered: number;
+  intervalID: any;
+  updateProgress: ProgCallback;
+  
+  constructor(size: number, updateProgress: ProgCallback) {
     super({
       transform: (chunk, controller) => {
         this.bytesTransfered += chunk.length;
@@ -70,9 +78,9 @@ export class CountingStream extends TransformStream {
     this.update();
   }
   
-  update() {
+  update(): void {
     let currentTime = new Date();
-    let diffTime = currentTime - this.startingTime; // in miliseconds
+    let diffTime = currentTime.getTime() - this.startingTime.getTime(); // in miliseconds
     let bps = this.bytesTransfered / (diffTime/1000);
     let percentDone = this.bytesTransfered / this.bytesTotal;
     this.updateProgress(percentDone, bps);

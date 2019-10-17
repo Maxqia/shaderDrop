@@ -1,20 +1,23 @@
 'use strict';
 
-import {FutureEvent} from '../event.ts';
+import {FutureEvent} from '../event';
 
+// TODO more strict typing
+export type MessageType = any;
+export type MessageCallback = (msg: MessageType) => void;
 export class MessageHandler {
-  constructor() {
-    this.log = (msg) => console.log(msg);
-    this.handlers = new Map();
-    this.defaultHandler = (msg) => {
+  log: {(msg): void} = (msg) => console.log(msg);
+  handlers: Map<string,MessageCallback> = new Map();
+  defaultHandler: MessageCallback = (msg) => {
       this.log("Message not handled! : " + msg);
     };
-    
+  
+  constructor() {
     this.srvMsg = this.srvMsg.bind(this);
     this.on = this.on.bind(this);
   }
   
-  srvMsg(incomingData) {
+  srvMsg(incomingData: MessageType) {
     if (typeof incomingData === "string") {
       var data = JSON.parse(incomingData);
       if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
@@ -29,11 +32,11 @@ export class MessageHandler {
     this.defaultHandler(incomingData);
   }
   
-  on(msgType, callback) {
+  on(msgType: string, callback: MessageCallback) {
     this.handlers.set(msgType, callback);
   }
   
-  next(msgType, timeout, timeoutMsg) {
+  next(msgType: string, timeout?: number, timeoutMsg?: string): Promise<MessageType> {
     return new Promise((resolve, reject) => {
       if (timeout != undefined) {
         setTimeout(() => {
@@ -49,19 +52,16 @@ export class MessageHandler {
   }
 }
 
-export class Transport extends MessageHandler {
+export abstract class Transport extends MessageHandler {
+  open: FutureEvent<any> = new FutureEvent();
+  close: FutureEvent<any> = new FutureEvent();
+  error: FutureEvent<any> = new FutureEvent();
   constructor() {
     super();
-    this.open = new FutureEvent();
-    this.close = new FutureEvent();
-    this.error = new FutureEvent();
   }
   
-  send(data) {
-    throw new Error("send not defined! : object : " + data);
-  }
-  
-  sendJSON(object) {
+  abstract send(data: any): void;
+  sendJSON(object: any) {
     this.send(JSON.stringify(object));
   }
 }
