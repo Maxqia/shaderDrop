@@ -12,6 +12,11 @@ export class FutureEvent<T> {
   register(callback : { (optData? : T): any }): void {
     this.callback.push(callback);
   }
+  
+  // returns whether or not we found the callback
+  unregister(callback : { (optData? : T): any }): boolean {
+    return false; // TODO
+  }
 
   fire(optData?: T): void {
     for (let callback of this.callback) {
@@ -23,7 +28,7 @@ export class FutureEvent<T> {
     this.resolved = true;
   }
 
-  promise(timeout?: number, timeoutMsg?: string): Promise<any> {
+  promise(timeout?: number, timeoutMsg?: string): Promise<T> {
     return new Promise((resolve, reject) => {
       if (timeout != undefined) {
         setTimeout(() => reject(timeoutMsg), timeout);
@@ -40,7 +45,7 @@ export class FutureValue<T> {
   constructor() {
   }
 
-  setValue(value : T) {
+  setValue(value : T): void {
     this.value = value;
     for (let callback of this.callback) {
       if (typeof callback === "function") {
@@ -51,7 +56,7 @@ export class FutureValue<T> {
   }
 
   // calls callback with value once it's available
-  register(callback : { (value? : T): any }) {
+  register(callback : { (value? : T): any }): void {
     this.callback.push(callback);
   }
 

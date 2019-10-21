@@ -3,7 +3,6 @@
 const stream = require('stream');
 // node.js streams adapter for the message interface we have
 
-
 // reads a stream and passes it to sendMsg (webrtc)
 export class RTCWriteStream extends stream.Writable {
   constructor(transport) {
@@ -13,6 +12,8 @@ export class RTCWriteStream extends stream.Writable {
     });
     this.transport = transport;
     this.total = 0;
+    
+    // @ts-ignore this is bad practice anyway.... sooooo.....
     global.writeStream = this;
   }
   

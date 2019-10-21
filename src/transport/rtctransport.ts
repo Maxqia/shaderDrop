@@ -2,10 +2,14 @@
 //import adapter from 'webrtc-adapter';
 import {RTCPeerConnection, RTCDataChannel, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
 
-import {Transport} from './transport';
+import {Transport, MessageType} from './transport';
 import {FutureEvent} from '../event';
 
 export default class WebRTCTransport extends Transport {
+  open: FutureEvent<Event> = new FutureEvent();
+  close: FutureEvent<Event> = new FutureEvent();
+  error: FutureEvent<RTCErrorEvent> = new FutureEvent();
+  
   pc: RTCPeerConnection = null;
   dc: RTCDataChannel = null;
   transport: Transport = null;
@@ -14,6 +18,9 @@ export default class WebRTCTransport extends Transport {
   constructor() {
     super(); 
     this.newPeerConnection();
+    this.error.register((error: RTCErrorEvent) => {
+      this.log(error);
+    });
   }
   
   setTransport(transport: Transport): void {
@@ -99,7 +106,7 @@ export default class WebRTCTransport extends Transport {
     }
   }
   
-  send(data: any): void {
+  send(data: MessageType): void {
     this.dc.send(data);
   }
 

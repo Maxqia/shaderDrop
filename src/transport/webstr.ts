@@ -1,9 +1,10 @@
+import {MessageType} from './transport';
 import WebRTCTransport from './rtctransport';
 
 /* Web-Browser based Streams */
 
 export function createWritableStream(transport: WebRTCTransport) : WritableStream {
-  let stream = new WritableStream({
+  let stream = new WritableStream<Uint8Array>({
     start(controller) {
     },
     write(chunk: Uint8Array, controller) {
@@ -14,7 +15,7 @@ export function createWritableStream(transport: WebRTCTransport) : WritableStrea
       let bytePos = 0;
       while (bytePos < chunk.length) {
         let sendBytes = Math.min(fragSize, chunk.length - bytePos);
-        let fragChunk = chunk.subarray(bytePos, bytePos+sendBytes); // TODO what type are we reciving???
+        let fragChunk = chunk.subarray(bytePos, bytePos+sendBytes);
         currentPromise = currentPromise.then(() => {
           transport.send(fragChunk);
           return transport.bufferLow();
@@ -35,7 +36,9 @@ export function createWritableStream(transport: WebRTCTransport) : WritableStrea
 export function createReadableStream(transport: WebRTCTransport) : ReadableStream {
   let stream = new ReadableStream({
     start(controller) {
-      transport.defaultHandler = (data) => {
+      transport.defaultHandler = (data: MessageType) => {
+        // data comes in as a array buffer & everything is expecting a Uint8Array
+        // @ts-ignore data is guaranteed to be a arraybuffer, TODO fix types
         let uint8View = new Uint8Array(data);
         controller.enqueue(uint8View);
       };

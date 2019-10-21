@@ -5,9 +5,9 @@ import qrCode from 'qrcode-terminal';
 import nodePV from 'node-pv';
 import fs from 'fs';
 
-import WebSocketTransport from "./transport/wstransport.js";
-import WebRTCTransport from "./transport/rtctransport.js";
-import { RTCWriteStream, RTCReadStream } from "./transport/nodestr.js";
+import WebSocketTransport from "./transport/wstransport";
+import WebRTCTransport from "./transport/rtctransport";
+import { RTCWriteStream, RTCReadStream } from "./transport/nodestr";
 
 
 

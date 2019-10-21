@@ -2,11 +2,9 @@
 import WebSocket from 'isomorphic-ws';
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
-//var nacl = require('tweetnacl');
-//nacl.util = require('tweetnacl-util');
 
-import {FutureValue} from '../event';
-import {Transport, MessageHandler, MessageType, MessageCallback} from './transport';
+import {FutureValue, FutureEvent} from '../event';
+import {Transport, MessageType} from './transport';
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // HACK : ignore self signed certificate
 
@@ -19,19 +17,23 @@ class WebSocketIDTransport extends Transport {
     this.id = id;
   }
   
-  send(msg) {
+  send(msg: MessageType) {
     this.transport.sendToID(this.id, msg);
   }
 };
 
 /* connects to our websocket infrasturcture for message passing */
 export default class WebSocketTransport extends Transport {
+  open: FutureEvent<WebSocket.OpenEvent> = new FutureEvent();
+  close: FutureEvent<WebSocket.CloseEvent> = new FutureEvent();
+  error: FutureEvent<WebSocket.ErrorEvent> = new FutureEvent();
+  
   keyPair: nacl.SignKeyPair;
   publicKey: string;
   id: FutureValue<String> = new FutureValue();
   
   msgRecv: (id: string, str: string) => void;
-  clientHandler: Map<MessageType, MessageCallback> = new Map();
+  clientHandler: Map<string, {(msg: MessageType): void}> = new Map();
   conn: WebSocket = null;
   
   constructor() {
@@ -44,13 +46,17 @@ export default class WebSocketTransport extends Transport {
     
     this.on("signData", this.signData.bind(this));
     this.on("msgRecv", this.srvMsgRecieved.bind(this));
+    
+    this.error.register((error: WebSocket.ErrorEvent) => {
+      this.log(error);
+    });
   }
   
-  connect(): Promise<any> {
+  connect(): Promise<WebSocket.OpenEvent> {
     var url = typeof location !== 'undefined' ? "wss://"+location.host+"/websocket/" : "wss://127.0.0.1:8082/websocket/";
     this.conn = new WebSocket(url);
     
-    this.conn.onmessage = (event) => this.srvMsg(event.data);
+    this.conn.onmessage = (event: WebSocket.MessageEvent) => this.srvMsg(event.data);
     this.conn.onopen = this.open.fire;
     this.conn.onclose = this.close.fire;
     this.conn.onerror = this.error.fire;
@@ -58,21 +64,23 @@ export default class WebSocketTransport extends Transport {
       this.error.register(reject);
       this.open.register(resolve);
       setTimeout(() => {
-        reject("connection timed out!")
+        this.open.unregister(resolve);
+        this.error.unregister(reject);
+        reject("connection timed out!");
       }, 1000);
     });
   }
   
-  disconnect(): Promise<any> {
+  disconnect(): Promise<WebSocket.CloseEvent> {
     this.conn.close();
     return this.close.promise();
   }
   
-  send(data: string): void {
+  send(data: MessageType): void {
     this.conn.send(data);
   }
   
-  sendToID(id: string, str: string): void {
+  sendToID(id: string, str: MessageType): void {
     this.sendJSON({
         msgType: "sendMsg",
         stringID: id,

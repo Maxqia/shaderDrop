@@ -1,14 +1,10 @@
 'use strict';
 
-import {FutureEvent} from '../event';
-
-// TODO more strict typing
-export type MessageType = any;
-export type MessageCallback = (msg: MessageType) => void;
+export type MessageType = string | ArrayBuffer;
 export class MessageHandler {
   log: {(msg): void} = (msg) => console.log(msg);
-  handlers: Map<string,MessageCallback> = new Map();
-  defaultHandler: MessageCallback = (msg) => {
+  handlers: Map<string,{(msg: any): void}> = new Map();
+  defaultHandler: {(msg: MessageType): void} = (msg: MessageType) => {
       this.log("Message not handled! : " + msg);
     };
   
@@ -32,11 +28,11 @@ export class MessageHandler {
     this.defaultHandler(incomingData);
   }
   
-  on(msgType: string, callback: MessageCallback) {
+  on(msgType: string, callback: {(msg: any): void}) {
     this.handlers.set(msgType, callback);
   }
   
-  next(msgType: string, timeout?: number, timeoutMsg?: string): Promise<MessageType> {
+  next(msgType: string, timeout?: number, timeoutMsg?: string): Promise<any> {
     return new Promise((resolve, reject) => {
       if (timeout != undefined) {
         setTimeout(() => {
@@ -53,15 +49,12 @@ export class MessageHandler {
 }
 
 export abstract class Transport extends MessageHandler {
-  open: FutureEvent<any> = new FutureEvent();
-  close: FutureEvent<any> = new FutureEvent();
-  error: FutureEvent<any> = new FutureEvent();
   constructor() {
     super();
   }
   
-  abstract send(data: any): void;
-  sendJSON(object: any) {
+  abstract send(data: MessageType): void;
+  sendJSON(object: any): void {
     this.send(JSON.stringify(object));
   }
 }
