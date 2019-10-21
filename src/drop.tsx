@@ -85,12 +85,13 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
     );
   }
 
-  getID(id) {
+  // handler for the id event
+  getID(id: string): void {
     this.setState({ id : id });
     this.updateServer();
   }
   
-  updateServer() {
+  updateServer(): void {
     this.ws.sendJSON({
       msgType: "update",
       clientInfo: {
@@ -102,11 +103,11 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
     });
   }
   
-  setupWRTC(clientID) {
+  setupWRTC(clientID: string): void {
     this.wrtc.setTransport(this.ws.transport(clientID));
   }
   
-  newClientMsgRecv(id, incomingData) {
+  newClientMsgRecv(id: string, incomingData: string): void {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
     
@@ -135,12 +136,12 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
     };
   }
   
-  transferMsg(msg) {
+  transferMsg(msg): void {
     console.log(msg);
     this.setState({ transferState: msg });
   }
   
-  async onNewRemote() {
+  async onNewRemote(): Promise<void> {
     if (this.state.sending) {
       await this.wrtc.open.promise();
       this.transferMsg("Connected");
@@ -170,7 +171,7 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
     }
   }
   
-  onFileDrop(fileInfo, stream) {
+  onFileDrop(fileInfo: FileInfo, stream: ReadableStream) {
     fileInfo.msgType = "fileInfo";
     this.setState({
       fileInfo: fileInfo,
@@ -180,7 +181,7 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
     this.stream = stream;
   }
   
-  updateProgress(percentDone, bps) {
+  updateProgress(percentDone: number, bps: number) {
     percentDone = percentDone * 100;
     this.setState({
       transferState: "Transfering : "+percentDone.toFixed(2)+"% ["+bytes(bps)+"/s]",

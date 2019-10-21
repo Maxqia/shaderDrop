@@ -1,4 +1,5 @@
-import {MessageType} from './transport';
+'use strict';
+import {BinMsgType} from './transport';
 import WebRTCTransport from './rtctransport';
 
 /* Web-Browser based Streams */
@@ -36,9 +37,8 @@ export function createWritableStream(transport: WebRTCTransport) : WritableStrea
 export function createReadableStream(transport: WebRTCTransport) : ReadableStream {
   let stream = new ReadableStream({
     start(controller) {
-      transport.defaultHandler = (data: MessageType) => {
+      transport.binaryHandler = (data: BinMsgType) => {
         // data comes in as a array buffer & everything is expecting a Uint8Array
-        // @ts-ignore data is guaranteed to be a arraybuffer, TODO fix types
         let uint8View = new Uint8Array(data);
         controller.enqueue(uint8View);
       };

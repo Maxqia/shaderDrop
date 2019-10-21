@@ -8,6 +8,7 @@ import fs from 'fs';
 import WebSocketTransport from "./transport/wstransport";
 import WebRTCTransport from "./transport/rtctransport";
 import { RTCWriteStream, RTCReadStream } from "./transport/nodestr";
+import { FileInfo } from "./TestObject";
 
 
 
@@ -70,10 +71,10 @@ for(let i = 0; i < args.length; i++) {
 files = args;
 
 
-var fileInfo;
-var sending;
-var ws = new WebSocketTransport();
-var wrtc = new WebRTCTransport();
+var fileInfo : FileInfo;
+var sending : boolean;
+var ws : WebSocketTransport = new WebSocketTransport();
+var wrtc : WebRTCTransport = new WebRTCTransport();
 //ws.log = (msg) => console.error(msg);
 //wrtc.log = (msg) => console.error(msg);
 ws.log = (msg) => {};
@@ -82,7 +83,7 @@ ws.msgRecv = newClientMsgRecv;
 
 // TODO multiple files
 
-var finalPromise;
+let finalPromise : Promise<void>;
 switch (command) {
   case 'send':
     finalPromise = send();
@@ -109,11 +110,11 @@ finalPromise.then(() => {
   printHelpAndExit();
 });
 
-function setupWRTC(clientID) {
+function setupWRTC(clientID: string): void {
   wrtc.setTransport(ws.transport(clientID));
 }
 
-async function getConnected() {
+async function getConnected(): Promise<void> {
   await ws.connect();
   
   if(connectedID) { // we've been given an id to connect to!
@@ -144,13 +145,13 @@ async function getConnected() {
   process.stderr.write(" connected!\n");
 }
 
-async function disconnect() {
+async function disconnect(): Promise<void> {
   await wrtc.close.promise();
   ws.disconnect();
   await ws.close.promise();
 }
 
-async function send() {
+async function send(): Promise<void> {
   // setup files
   var readStream;
   if (files.length >= 1) {
@@ -199,7 +200,7 @@ async function send() {
 }
 
 
-async function recieve() {
+async function recieve(): Promise<void> {
   // setup files
   var writeStream;
   if (files.length >= 1) {
@@ -243,7 +244,7 @@ async function recieve() {
 }
 
 
-function newClientMsgRecv(id, incomingData) {
+function newClientMsgRecv(id: string, incomingData: string) {
     var data = JSON.parse(incomingData);
     if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
     

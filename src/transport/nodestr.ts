@@ -1,17 +1,20 @@
 'use strict';
+import stream from 'stream';
+import {BinMsgType} from './transport';
+import WebRTCTransport from './rtctransport';
 
-const stream = require('stream');
 // node.js streams adapter for the message interface we have
 
 // reads a stream and passes it to sendMsg (webrtc)
 export class RTCWriteStream extends stream.Writable {
-  constructor(transport) {
+  transport: WebRTCTransport;
+  total: number = 0;
+  constructor(transport: WebRTCTransport) {
     super({
       highWaterMark: 16384, // 16KiB
       decodeStrings: true,
     });
     this.transport = transport;
-    this.total = 0;
     
     // @ts-ignore this is bad practice anyway.... sooooo.....
     global.writeStream = this;
@@ -55,22 +58,23 @@ export class RTCWriteStream extends stream.Writable {
 
 // gets a message (webrtc) and passes it to a stream 
 export class RTCReadStream extends stream.Readable {
-  constructor(transport) {
+  transport: WebRTCTransport;
+  constructor(transport: WebRTCTransport) {
     super({
       highWaterMark: 16384, // doesn't matter, we're gonna ram right through it anyways
     });
     this.transport = transport;
-    this.transport.defaultHandler = this.onMessageRecv.bind(this);
+    this.transport.binaryHandler = this.onMessageRecv.bind(this);
     this.transport.close.register(() => {
       this.push(null); // ends reading
     });
   }
   
-  _read(size) {
+  _read(size: number) {
     // do nothing
   }
   
-  onMessageRecv(data) {
+  onMessageRecv(data: BinMsgType) {
     //console.error(data);
     let uint8View = new Uint8Array(data);
     this.push(uint8View);

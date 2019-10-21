@@ -1,11 +1,15 @@
 'use strict';
 
-export type MessageType = string | ArrayBuffer;
+export type BinMsgType = ArrayBuffer;
+export type MessageType = string | BinMsgType;
 export class MessageHandler {
   log: {(msg): void} = (msg) => console.log(msg);
   handlers: Map<string,{(msg: any): void}> = new Map();
-  defaultHandler: {(msg: MessageType): void} = (msg: MessageType) => {
+  defaultHandler: {(msg: any): void} = (msg: any) => {
       this.log("Message not handled! : " + msg);
+    };
+  binaryHandler: {(data: BinMsgType) : void} = (data: BinMsgType) => {
+      this.log("Binary Message not handled! : " + data);
     };
   
   constructor() {
@@ -13,7 +17,7 @@ export class MessageHandler {
     this.on = this.on.bind(this);
   }
   
-  srvMsg(incomingData: MessageType) {
+  srvMsg(incomingData: MessageType): void {
     if (typeof incomingData === "string") {
       var data = JSON.parse(incomingData);
       if (!data.hasOwnProperty("msgType")) throw "recieved message without msgType!";
@@ -24,11 +28,12 @@ export class MessageHandler {
         return;
       }
       this.defaultHandler(data);
+    } else {
+      this.binaryHandler(incomingData);
     }
-    this.defaultHandler(incomingData);
   }
   
-  on(msgType: string, callback: {(msg: any): void}) {
+  on(msgType: string, callback: {(msg: any): void}): void {
     this.handlers.set(msgType, callback);
   }
   
