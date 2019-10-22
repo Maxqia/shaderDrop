@@ -49,13 +49,65 @@ $break-point: 1000px;
   margin: 10px;
 }
 
+// Dropper Display
+
+$radius: 10px;
 .fileDrop {
+  border-radius: $radius;
+  transition: background-color 0.15s;
+  transition-timing-function: ease-out;
+  background-color: white;
+  padding: 10px;
+  width: 400px;
+}
+
+.fileBorder {
   border-style: dotted;
   border-color: black;
-  border-radius: 10px;
+  border-radius: $radius;
   padding: 10px;
+}
+
+$hover-color: #bdebff;
+.hover {
+  background-color: $hover-color;
+}
+
+.attachContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.attachContainer > * {
+  margin: 0px 5px;
+}
+
+.textContainer {
+  width: 100%;
+}
+
+.textContainer > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#fileLabel {
+  border: 1px solid;
+  margin: 0;
+  padding: 3px 5px;
+  cursor: pointer;
 }
 
 #fileElem {
   display: none;
 }
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+

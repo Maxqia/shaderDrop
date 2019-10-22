@@ -78,7 +78,7 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
           <div className="client">
             <IDDisplay id={this.state.id}/>
             <StateDisplay className="progressDiv" transferState={this.state.transferState} percentDone={this.state.transferPercent}/>
-            <FileDropDisplay file={this.state.fileInfo} onFileDrop={this.onFileDrop.bind(this)}/>
+            <div className="center"><FileDropDisplay file={this.state.fileInfo} onFileDrop={this.onFileDrop.bind(this)}/></div>
           </div>
         </div> </div>
       </div>

@@ -12,6 +12,7 @@ interface FileDropProps {
 
 interface FileDropState {
   text: string;
+  hover: boolean;
 }
 
 // calls onFileDrop with a SyntheticFile object containing a stream
@@ -20,11 +21,15 @@ export class FileDrop extends React.Component<FileDropProps, FileDropState> {
     super(props);
     this.state = {
       text: "",
+      hover: false,
     };
     
     this.handleEvent = this.handleEvent.bind(this);
     this.handleSubmitText = this.handleSubmitText.bind(this);
     this.onDrop = this.onDrop.bind(this);
+    this.onDragEnter = this.onDragEnter.bind(this);
+    this.onDragLeave = this.onDragLeave.bind(this);
+    this.onFileChange = this.onFileChange.bind(this);
   }
   
   handleEvent(event) {
@@ -49,7 +54,8 @@ export class FileDrop extends React.Component<FileDropProps, FileDropState> {
     e.stopPropagation();
   }
   
-  onDrop(event: DragEvent) {
+  onDrop(e) {
+    let event: DragEvent = (e as unknown) as DragEvent;
     this.preventDefaults(event);
     console.log(event);
     
@@ -75,6 +81,28 @@ export class FileDrop extends React.Component<FileDropProps, FileDropState> {
     }
   }
   
+  dropChildren:number = 0;
+  onDragEnter(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dropChildren++;
+    console.log(this.dropChildren);
+    if (this.dropChildren > 0) {
+      this.setState({hover: true});
+    }
+  }
+  
+  onDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dropChildren--;
+    console.log(this.dropChildren);
+    if (this.dropChildren <= 0 ) {
+      this.setState({hover: false});
+    }
+  }
+  
+  
   dropFile(file: File) {
     let fileInfo = {
       name: file.name,
@@ -84,26 +112,53 @@ export class FileDrop extends React.Component<FileDropProps, FileDropState> {
     this.props.onFileDrop(fileInfo, readableStream);
   }
   
+  onFileChange(event) {
+    console.log(event);
+    let files = event.target.files;
+    if (files.length == 1) {
+      this.dropFile(files[0]);
+    } else {
+      console.error("error: recieved change event with " + files.length + " files!");
+    }
+  }
+  
+  componentDidMount() {
+    // hacky hack
+    let allChildren = document.querySelectorAll("#drop, #drop *");
+    for(let child of allChildren) {
+      child.addEventListener("drop", this.onDrop);
+      child.addEventListener("dragenter",this.onDragEnter);
+      child.addEventListener("dragover", this.preventDefaults);
+      child.addEventListener("dragleave", this.onDragLeave);
+    }
+  }
+  
   render() {
     return (
-      <div className={classNames("fileDrop", this.props.className)}
-          onDragEnter={this.preventDefaults}
-          onDragOver={this.preventDefaults}
-          onDragLeave={this.preventDefaults}
-          onDrop={this.onDrop}
+      <div className={classNames("fileDrop", 
+          this.state.hover ? "hover" : null,
+          this.props.className)}
+          id="drop"
       >
-        <div>Drop File </div>
-        <div id="drop">
-          <form>
-            <input type="file" id="fileElem"/>
-            <input type="button" value="Attach File"/>
-          </form>
+        <div className="fileBorder">
+          <div className="attachContainer">
+            <div className="">Drop File</div>
+            <div className="">or</div>
+            <div className="" id="drop">
+              <form>
+                <input type="file" id="fileElem" onChange={this.onFileChange}/>
+                <label htmlFor="fileElem" id="fileLabel">Attach File</label>
+              </form>
+            </div>
+          </div>
+          <div className="textContainer">
+            <div>(or paste text!)</div>
+            <form onSubmit={this.handleSubmitText}>
+              <textarea value={this.state.text} onChange={this.handleEvent}></textarea>
+              <button>Submit</button>
+            </form>
+          </div>
         </div>
-        <div>(or paste text!)</div>
-        <form onSubmit={this.handleSubmitText}>
-          <textarea value={this.state.text} onChange={this.handleEvent}></textarea>
-          <button>Submit</button>
-        </form>
       </div>
     );
   }
