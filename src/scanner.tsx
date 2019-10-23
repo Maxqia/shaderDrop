@@ -137,6 +137,20 @@ class ShaderDropScanner extends React.Component<{}, ScannerState> {
       let client = this.getClient(this.lastScannedClient);
       if (client != null) {
         this.connectClients(this.state.clients[this.state.selectedClient], client);
+        
+        // remove the newly connected clients from clients array
+        let cArr: Client[] = this.state.clients.slice();
+        cArr.splice(this.state.selectedClient);
+        cArr = cArr.filter((elem) => elem != client);
+        let selected: number = null;
+        if(cArr.length >= 1) {
+          selected = 0;
+        }
+        
+        this.setState({
+          clients: cArr,
+          selectedClient: selected,
+        });
       }
     }
   }
