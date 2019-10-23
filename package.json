@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "patch-package",
     "test": "mocha -r ts-node/register --bail src/**/*.test.ts",
-    "server": "nodemon -r esm src/server.js",
+    "server": "ts-node src/server.ts",
     "build": "webpack",
     "watch": "webpack --watch",
     "web-server": "webpack-dev-server --open"

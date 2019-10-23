@@ -141,34 +141,46 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
     this.setState({ transferState: msg });
   }
   
+  clientWaiting: boolean = false;
   async onNewRemote(): Promise<void> {
-    if (this.state.sending) {
+    if (this.state.hasFile) {
       await this.wrtc.open.promise();
-      this.transferMsg("Connected");
-      let fileInfo = this.state.fileInfo;
-      this.wrtc.sendJSON(fileInfo);
-      let writeStream = WebStr.createWritableStream(this.wrtc);
-      
-      let progress = new WebStr.CountingStream(fileInfo.size, this.updateProgress.bind(this));
-      this.stream.pipeTo(progress.writable);
-      await progress.readable.pipeTo(writeStream);
-      
-      this.transferMsg("Done!");
+      this.send();
     } else {
-      console.log("window.isSecureContext : " + window.isSecureContext);
-      let readStream = WebStr.createReadableStream(this.wrtc);
-      let fileInfo = await this.wrtc.next('fileInfo');
-      this.transferMsg("Connected");
-      this.setState({fileInfo : fileInfo});
-      let writeStream = StreamSaver.createWriteStream(fileInfo.name, {
-        size: fileInfo.size,
-      });
-      
-      let progress = new WebStr.CountingStream(fileInfo.size, this.updateProgress.bind(this));
-      readStream.pipeTo(progress.writable);
-      await progress.readable.pipeTo(writeStream);
-      this.transferMsg("Done!");
+      await this.wrtc.open.promise();
+      this.transferMsg("Connected : Waiting for File...");
+      this.wrtc.on("fileInfo", this.recv.bind(this));
+      this.clientWaiting = true;
     }
+  }
+  
+  async send() {
+    if (!this.state.sending) throw new Error("tried to send in wrong state!");
+    this.transferMsg("Connected");
+    let fileInfo = this.state.fileInfo;
+    this.wrtc.sendJSON(fileInfo);
+    let writeStream = WebStr.createWritableStream(this.wrtc);
+    
+    let progress = new WebStr.CountingStream(fileInfo.size, this.updateProgress.bind(this));
+    this.stream.pipeTo(progress.writable);
+    await progress.readable.pipeTo(writeStream);
+    
+    this.transferMsg("Done!");
+  }
+  
+  async recv(fileInfo: File) {
+    if (this.state.sending) throw new Error("tried to recieve in wrong state!");
+    this.transferMsg("Got File!");
+    this.setState({fileInfo : fileInfo});
+    let readStream = WebStr.createReadableStream(this.wrtc);
+    let writeStream = StreamSaver.createWriteStream(fileInfo.name, {
+      size: fileInfo.size,
+    });
+    
+    let progress = new WebStr.CountingStream(fileInfo.size, this.updateProgress.bind(this));
+    readStream.pipeTo(progress.writable);
+    await progress.readable.pipeTo(writeStream);
+    this.transferMsg("Done!");
   }
   
   onFileDrop(fileInfo: FileInfo, stream: ReadableStream) {
@@ -177,14 +189,24 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
       fileInfo: fileInfo,
       sending: true,
       hasFile: true,
-    }, this.updateServer);
-    this.stream = stream;
+    }, () => {
+      this.stream = stream;
+      this.updateServer();
+      if (this.clientWaiting) {
+        this.send();
+      }
+    });
   }
   
   updateProgress(percentDone: number, bps: number) {
     percentDone = percentDone * 100;
+    
+    let str: string = "";
+    str += this.state.sending ? "Sending : " : "Recieving : ";
+    str += percentDone.toFixed(2) + "% ";
+    str += "["+bytes(bps)+"/s]";
     this.setState({
-      transferState: "Transfering : "+percentDone.toFixed(2)+"% ["+bytes(bps)+"/s]",
+      transferState: str,
       transferPercent: percentDone,
     });
   }

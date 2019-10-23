@@ -229,7 +229,9 @@ async function recieve(): Promise<void> {
   await getConnected();
   var readStream = new RTCReadStream(wrtc);
   
-  var fileInfo = await wrtc.next('fileInfo', 1000, "did not recieve fileInfo message!");
+  process.stderr.write("waiting for file...");
+  var fileInfo = await wrtc.next('fileInfo');
+  process.stderr.write(" done!\n");
   var pv = nodePV({
     size: fileInfo.size,
     name: fileInfo.name,
