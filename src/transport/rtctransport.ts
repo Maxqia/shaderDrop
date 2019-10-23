@@ -149,8 +149,9 @@ export default class WebRTCTransport extends Transport {
     });
   }
   
-  disconnect(): void {
+  disconnect(): Promise<Event> {
     this.dc.close();
+    return this.close.promise();
   }
 } 
 

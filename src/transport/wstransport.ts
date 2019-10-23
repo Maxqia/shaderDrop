@@ -52,8 +52,10 @@ export default class WebSocketTransport extends Transport {
     });
   }
   
-  connect(): Promise<WebSocket.OpenEvent> {
-    var url = typeof location !== 'undefined' ? "wss://"+location.host+"/websocket/" : "wss://127.0.0.1:8082/websocket/";
+  connect(url?: string): Promise<WebSocket.OpenEvent> {
+    if (typeof url === undefined) {
+      url = typeof location !== 'undefined' ? "wss://"+location.host+"/websocket/" : "wss://127.0.0.1:8082/websocket/";
+    }
     this.conn = new WebSocket(url);
     
     this.conn.onmessage = (event: WebSocket.MessageEvent) => this.srvMsg(event.data);

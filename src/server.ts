@@ -10,21 +10,7 @@ import {Client} from "./TestObject";
 import {MessageHandler} from "./transport/transport";
 
 /* Implements basic message passing (server-side) */
-
-/*const server = new https.createServer({
-  cert: fs.readFileSync('cert.pem'),
-  key: fs.readFileSync('key.pem')
-}).listen(8081);*/
-
-var wsServer = new WebSocket.Server( {
-//  server,
-    host : "0.0.0.0",
-    port : 8081,
-    clientTracking: true,
-} );
-
 var clientList = new Map();
-
 
 //var number = 0;
 function getRandomID() {
@@ -166,30 +152,48 @@ class ShaderDropClient extends MessageHandler {
     }
 }
 
-wsServer.on("connection", function(socket, request) {
-    socket.ipPort = request.socket.remoteAddress + ":" + request.socket.remotePort;
-    console.log("client " + socket.ipPort + " connected");
-    let client: ShaderDropClient = new ShaderDropClient(socket);
-    
-    socket.on("message", function(data) {
-        try {
-            client.srvMsg(data);
-        } catch (error) {
-            console.log("error on " + socket.ipPort + ":" + error);
-            socket.terminate();
-        }
+export function setupWsServer(wsServer) {
+    wsServer.on("connection", function(socket, request) {
+        socket.ipPort = request.socket.remoteAddress + ":" + request.socket.remotePort;
+        console.log("client " + socket.ipPort + " connected");
+        let client: ShaderDropClient = new ShaderDropClient(socket);
+        
+        socket.on("message", function(data) {
+            try {
+                client.srvMsg(data);
+            } catch (error) {
+                console.log("error on " + socket.ipPort + ":" + error);
+                socket.terminate();
+            }
+        });
+        
+        socket.on("close", function(code, reason) {
+            console.log("client " + socket.ipPort + " closed due to : " + reason);
+            try {
+              client.cleanup();
+            } catch (error) {
+              console.log("error closing " + socket.ipPort + error);
+            }
+        });
+        client.sendRandomBytes();
     });
-    
-    socket.on("close", function(code, reason) {
-        console.log("client " + socket.ipPort + " closed due to : " + reason);
-        try {
-          client.cleanup();
-        } catch (error) {
-          console.log("error closing " + socket.ipPort + error);
-        }
-    });
-    client.sendRandomBytes();
-});
+}
+
+export function startup() {
+    var wsServer = new WebSocket.Server( {
+    //  server,
+        host : "0.0.0.0",
+        port : 8081,
+        clientTracking: true,
+    } );
+    setupWsServer(wsServer);
+    return wsServer;
+}
+
+if (require.main === module) {
+  startup();
+}
+
 
 
 

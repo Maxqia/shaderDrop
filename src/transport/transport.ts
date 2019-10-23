@@ -53,6 +53,7 @@ export class MessageHandler {
   }
 }
 
+/* Describes something that can send and recieve messages */
 export abstract class Transport extends MessageHandler {
   constructor() {
     super();
