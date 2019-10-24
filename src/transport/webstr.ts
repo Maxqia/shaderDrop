@@ -34,6 +34,17 @@ export function createWritableStream(transport: WebRTCTransport) : WritableStrea
   return stream;
 }
 
+export function nullWritable() : WritableStream {
+  let stream = new WritableStream<Uint8Array>({
+    start(controller) {
+    },
+    write(chunk: Uint8Array, controller) {
+      //console.log("chunk sent to null");
+    },
+  }, new ByteLengthQueuingStrategy({ highWaterMark: 16384 })); // 16KiB queue
+  return stream;
+}
+
 export function createReadableStream(transport: WebRTCTransport) : ReadableStream {
   let stream = new ReadableStream({
     start(controller) {
