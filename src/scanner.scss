@@ -47,12 +47,6 @@ body {
   margin-bottom: 5px;
 }
 
-#sendDiv {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1vh;
-}
-
 #leftBt {
   margin-right: 10px;
 }
@@ -65,6 +59,27 @@ body {
   /*width: 24px;
   height: 24px;*/
 }
+
+/* ActionDiv Styling */
+
+#actionDiv {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  margin-bottom: 1vh;
+}
+
+#flip {
+  height: 4vh;
+  object-fit: cover;
+  filter: invert(100%);
+}
+
+#send img {
+  object-fit: cover;
+  height: 5vh;
+}
+
 /* end bottomBar styling */
 
 #preview {

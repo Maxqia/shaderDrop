@@ -167,15 +167,18 @@ class ShaderDropScanner extends React.Component<{}, ScannerState> {
           onError={(error) => console.error(error)}
           onScan={(data) => this.handleScan(data)}
           facingMode="environment"
+          frontFacing={false}
         />
         <div id="bottomBar">
+          <div id="actionDiv">
+            <button>Back</button>
+            <button id="send" onClick={() => this.send()}><img src="iconfinder_ic_file_upload_48px_352345.svg"/></button>
+            <img id="flip" src="iconfinder_rotate_on_1372387.svg"/>
+          </div>
           <div id="clientSelector">
             <button className="bt" id="leftBt" onClick={() => this.left()}>&lt;</button>
             {clientSelected}
             <button className="bt" id="rightBt" onClick={() => this.right()}>&gt;</button>
-          </div>
-          <div id="sendDiv">
-            <button onClick={() => this.send()}>Connect</button>
           </div>
         </div>
       </div>

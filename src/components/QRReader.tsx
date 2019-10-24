@@ -5,6 +5,7 @@ import Instascan from '@eventstag/instascan';
 interface QRReaderProps {
   className?: string;
   facingMode?: string;
+  frontFacing: boolean;
   onError: (error: any) => void;
   onScan: (data: string) => void;
 }
