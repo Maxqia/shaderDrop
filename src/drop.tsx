@@ -147,9 +147,9 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
       await this.wrtc.open.promise();
       this.send();
     } else {
+      this.wrtc.on("fileInfo", this.recv.bind(this));
       await this.wrtc.open.promise();
       this.transferMsg("Connected : Waiting for File...");
-      this.wrtc.on("fileInfo", this.recv.bind(this));
       this.clientWaiting = true;
     }
   }
