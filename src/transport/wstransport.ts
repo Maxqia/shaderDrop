@@ -58,7 +58,10 @@ export default class WebSocketTransport extends Transport {
     }
     this.conn = new WebSocket(url);
     
-    this.conn.onmessage = (event: WebSocket.MessageEvent) => this.srvMsg(event.data);
+    this.conn.onmessage = (event: WebSocket.MessageEvent) => {
+      // @ts-ignore TODO support buffer arrays  
+      this.srvMsg(event.data);
+    };
     this.conn.onopen = this.open.fire;
     this.conn.onclose = this.close.fire;
     this.conn.onerror = this.error.fire;

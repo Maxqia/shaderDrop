@@ -1,5 +1,5 @@
 'use strict';
-//import adapter from 'webrtc-adapter';
+// @ts-ignore
 import {RTCPeerConnection, RTCDataChannel, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
 
 import {Transport, MessageType} from './transport';
@@ -61,6 +61,7 @@ export default class WebRTCTransport extends Transport {
   // might be called twice...
   recieveChannel(channel: RTCDataChannel): void {
     this.dc = channel;
+    this.dc.binaryType = "arraybuffer";
     
     this.dc.onopen = (event) => {
       this.log(event);
@@ -87,6 +88,7 @@ export default class WebRTCTransport extends Transport {
   }
 
   async sendAnswer(sdp: string): Promise<void> {
+    // @ts-ignore sdp is of type RTCSessionDescriptionInit
     var desc = new RTCSessionDescription(sdp);
     await this.pc.setRemoteDescription(desc);
     var answer = await this.pc.createAnswer();
