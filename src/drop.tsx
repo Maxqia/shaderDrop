@@ -2,7 +2,7 @@
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 
-import StreamSaver from 'streamsaver';
+import { StreamSaver } from './transport/wsfill';
 import bytes from 'bytes';
 import classNames from 'classnames';
 

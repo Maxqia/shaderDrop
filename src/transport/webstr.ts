@@ -2,6 +2,8 @@
 import {BinMsgType} from './transport';
 import WebRTCTransport from './rtctransport';
 
+import {ReadableStream, WritableStream, TransformStream} from './wsfill';
+
 /* Web-Browser based Streams */
 
 export function createWritableStream(transport: WebRTCTransport) : WritableStream {
@@ -61,8 +63,25 @@ export function createReadableStream(transport: WebRTCTransport) : ReadableStrea
   return stream;
 }
 
+// copied from Blob.js
 export function fromBlob(file) {
-  return file.stream(); // TODO this isn't well supported, probably need to polyfill it
+  var position = 0
+  var blob = file
+
+  return new ReadableStream({
+    pull: function (controller) {
+      var chunk = blob.slice(position, position + 524288)
+
+      return chunk.arrayBuffer().then(function (buffer) {
+        position += buffer.byteLength
+        var uint8array = new Uint8Array(buffer)
+        controller.enqueue(uint8array)
+
+        if (position == blob.size)
+          controller.close()
+      })
+    }
+  })
 }
 
 export type ProgCallback = (percentDone: number, bps: number) => null;
