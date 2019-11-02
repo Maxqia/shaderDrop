@@ -67,12 +67,12 @@ export function createReadableStream(transport: WebRTCTransport) : ReadableStrea
 export function fromBlob(file) {
   var position = 0
   var blob = file
-
-  return new ReadableStream({
+  
+  var stream = new ReadableStream({
     pull: function (controller) {
       var chunk = blob.slice(position, position + 524288)
 
-      return chunk.arrayBuffer().then(function (buffer) {
+      return new Response(chunk).arrayBuffer().then(function (buffer) {
         position += buffer.byteLength
         var uint8array = new Uint8Array(buffer)
         controller.enqueue(uint8array)
@@ -82,6 +82,9 @@ export function fromBlob(file) {
       })
     }
   })
+
+  
+  return stream;
 }
 
 export type ProgCallback = (percentDone: number, bps: number) => null;
