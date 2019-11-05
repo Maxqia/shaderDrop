@@ -66,8 +66,8 @@ export function createReadableStream(transport: WebRTCTransport) : ReadableStrea
   return stream;
 }
 
-export function fromBlob(file) {
-  return toPolyfillReadable(file.stream());
+export function fromBlob(file) : ReadableStream {
+  return toPolyfillReadable(file.stream()) as ReadableStream;
 }
 
 export type ProgCallback = (percentDone: number, bps: number) => null;

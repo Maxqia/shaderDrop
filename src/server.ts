@@ -1,7 +1,11 @@
 'use strict';
 import fs from "fs";
+
+import http from "http";
 import https from "https";
 import WebSocket from "ws";
+import express from "express";
+
 import nacl from "tweetnacl";
 import naclutil from "tweetnacl-util";
 import uuidv1 from "uuid/v1";
@@ -179,15 +183,31 @@ export function setupWsServer(wsServer) {
     });
 }
 
-export function startup() {
-    var wsServer = new WebSocket.Server( {
-    //  server,
-        host : "0.0.0.0",
-        port : 8081,
-        clientTracking: true,
-    } );
-    setupWsServer(wsServer);
-    return wsServer;
+
+function startup() {
+  let app = express();
+  app.use(express.static("public"));
+  app.use(express.static("dist"));
+  
+  let server;
+  if (process.env.HTTPS) {
+    server = https.createServer({
+      key: fs.readFileSync(process.env.SSLPRIV),
+      cert: fs.readFileSync(process.env.SSLPUB),
+    }, app)
+  } else {
+    server = http.createServer({}, app);
+  }
+  
+  server.listen(process.env.PORT);
+  
+  let wsServer = new WebSocket.Server({ noServer: true });
+  setupWsServer(wsServer);
+  server.on('upgrade', (request, socket, head) => {
+    wsServer.handleUpgrade(request, socket, head, (ws) => {
+      wsServer.emit('connection', ws, request);
+    });
+  });
 }
 
 if (require.main === module) {

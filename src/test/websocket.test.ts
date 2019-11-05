@@ -2,7 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 import WebSocket from "ws";
 
-import {startup} from '../server';
+import {setupWsServer} from '../server';
 import WebSocketTransport from '../transport/wstransport';
 
 describe('websocket transport test', () => {
@@ -12,7 +12,11 @@ describe('websocket transport test', () => {
   
   describe('server', () => {
     it('should startup', () => {
-      server = startup();
+      server = new WebSocket.Server( {
+        host : "0.0.0.0",
+        port : 8081,
+      });
+      setupWsServer(server);
     });
   });
   
