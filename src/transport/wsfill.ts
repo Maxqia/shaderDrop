@@ -6,7 +6,7 @@ let fReadable: typeof ReadableStream;
 let fWritable: typeof WritableStream;
 let fTransform: typeof TransformStream;
 
-if(typeof WritableStream === "undefined") {
+if(true || typeof WritableStream === "undefined") {
   fReadable = streams.ReadableStream;
   window.ReadableStream = streams.ReadableStream;
   fWritable = streams.WritableStream;
@@ -15,7 +15,7 @@ if(typeof WritableStream === "undefined") {
   fWritable = WritableStream;
 }
 
-if(typeof TransformStream === "undefined") {
+if(true || typeof TransformStream === "undefined") {
   fTransform = streams.TransformStream;
 } else {
   fTransform = TransformStream;
