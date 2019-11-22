@@ -44,8 +44,7 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.jsx', '.js', '.json' ],
   },
   entry: {
-    scanner: './src/scanner.tsx',
-    drop: './src/drop.tsx',
+    index: './src/index.tsx',
   },
   output: {
     filename: '[name].js',

@@ -1,19 +1,18 @@
 'use strict';
 import React, {Component} from 'react';
-import ReactDOM from 'react-dom';
 
-import { StreamSaver } from './transport/wsfill';
+import { StreamSaver } from '../transport/wsfill';
 import bytes from 'bytes';
 import classNames from 'classnames';
 
-import "./drop.scss";
-import { FakeFile, FakeClient, FileInfo } from "./TestObject";
+import "./Client.scss";
+import { FakeFile, FakeClient, FileInfo } from "../TestObject";
 
-import * as WebStr from "./transport/webstr";
-import WebSocketTransport from "./transport/wstransport";
-import WebRTCTransport from "./transport/rtctransport";
+import * as WebStr from "../transport/webstr";
+import WebSocketTransport from "../transport/wstransport";
+import WebRTCTransport from "../transport/rtctransport";
 
-import { IDDisplay, StateDisplay, FileDropDisplay } from "./components/Display";
+import { IDDisplay, StateDisplay, FileDropDisplay } from "./Display";
 
 declare global {
   namespace JSX {
@@ -32,7 +31,7 @@ interface DropperState {
   transferPercent: number;
 }
 
-class ShaderDropDropper extends React.Component<{},DropperState> {
+export default class ShaderDropClient extends React.Component<{},DropperState> {
   ws: WebSocketTransport;
   wrtc: WebRTCTransport;
   
@@ -212,9 +211,3 @@ class ShaderDropDropper extends React.Component<{},DropperState> {
   }
 }
 
-/* Prevent Opening of Dropped Files */
-document.addEventListener("dragover", (event) => event.preventDefault());
-document.addEventListener("dragenter", (event) => event.preventDefault());
-document.addEventListener("drop", (event) => event.preventDefault());
-
-ReactDOM.render(<ShaderDropDropper/>, document.getElementById('root'));

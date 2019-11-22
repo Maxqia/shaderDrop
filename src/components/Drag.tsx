@@ -2,11 +2,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import "./scanner.scss";
-import WebSocketTransport from './transport/wstransport';
-import { FileInfo, Client, isValidClient, FakeClient} from './TestObject';
+import "./Drag.scss";
+import WebSocketTransport from '../transport/wstransport';
+import { FileInfo, Client, isValidClient, FakeClient} from '../TestObject';
 
-import { QRReader } from './components/QRReader';
+import { QRReader } from './QRReader';
 
 interface ClientProps {
   client: Client;
@@ -33,7 +33,7 @@ interface ScannerState {
   selectedClient: number;
 }
 
-class ShaderDropScanner extends React.Component<{}, ScannerState> {
+export default class ShaderDropDrag extends React.Component<{}, ScannerState> {
   lastScannedClient: string = null;
   transport: WebSocketTransport = new WebSocketTransport();
   constructor(props) {
@@ -185,7 +185,3 @@ class ShaderDropScanner extends React.Component<{}, ScannerState> {
     );
   }
 }
-
-ReactDOM.render(<ShaderDropScanner/>, document.getElementById('root'));
-
-
