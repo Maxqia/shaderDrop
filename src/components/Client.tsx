@@ -11,17 +11,17 @@ import * as WebStr from "../transport/webstr";
 import WebSocketTransport from "../transport/wstransport";
 import WebRTCTransport from "../transport/rtctransport";
 
-import { IDDisplay, StateDisplay, FileDropDisplay } from "./Display";
+import DropSubClient from "./Drop";
+import DragSubClient from "./Drag";
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      "status-indicator": any;
-    }
-  }
-}
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
-interface DropperState {
+interface ClientState {
   fileInfo: FileInfo;
   hasFile: boolean;
   id: string;
@@ -30,7 +30,8 @@ interface DropperState {
   transferPercent: number;
 }
 
-export default class ShaderDropClient extends React.Component<{},DropperState> {
+/* The Main Logic for the Browser Client */
+export default class ShaderDropClient extends React.Component<{},ClientState> {
   ws: WebSocketTransport;
   wrtc: WebRTCTransport;
   
@@ -61,27 +62,19 @@ export default class ShaderDropClient extends React.Component<{},DropperState> {
   
   render() {
     return (
-      <div id="reactapp" className="">
-        <div className="max-width">
-          <div className="">
-            <nav className="navbar navbar-light bg-light">
-              <div className="container-fluid">
-                <a className="navbar-brand" href="#">shaderDrop</a>
-                <status-indicator intermediary></status-indicator>
-              </div>
-            </nav>
-          </div>
-        </div>
-        <div className="max-width"> <div>
-          <div className="client">
-            <IDDisplay id={this.state.id}/>
-            <StateDisplay className="progressDiv" transferState={this.state.transferState} percentDone={this.state.transferPercent}/>
-            <div className="center"><FileDropDisplay file={this.state.fileInfo} onFileDrop={this.onFileDrop.bind(this)}/></div>
-          </div>
-        </div> </div>
-      </div>
+      <Router>
+        <Switch>
+          <Route path="/drag">
+            <DragSubClient/>
+          </Route>
+          <Route path="/">
+            <DropSubClient id={this.state.id} fileInfo={this.state.fileInfo} transferState={this.state.transferState} transferPercent={this.state.transferPercent} onFileDrop={this.onFileDrop.bind(this)}/>
+          </Route>
+        </Switch>
+      </Router>
     );
   }
+
 
   // handler for the id event
   getID(id: string): void {
