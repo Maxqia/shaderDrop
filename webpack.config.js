@@ -59,6 +59,7 @@ module.exports = {
     host: '0.0.0.0',
     contentBase: path.join(__dirname, 'public'),
     disableHostCheck: true,
+    historyApiFallback: true,
     proxy: {
       '/websocket': {
         target: 'ws://localhost:8081',

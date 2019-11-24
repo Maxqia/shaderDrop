@@ -5,7 +5,6 @@ import { StreamSaver } from '../transport/wsfill';
 import bytes from 'bytes';
 import classNames from 'classnames';
 
-import "./Client.scss";
 import { FakeFile, FakeClient, FileInfo } from "../TestObject";
 
 import * as WebStr from "../transport/webstr";

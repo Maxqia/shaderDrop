@@ -1,13 +1,6 @@
 @import "~bootstrap/scss/bootstrap";
 @import 'status-indicator';
 
-html, body, #root, #reactapp {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 .max-width {
   display:flex;
   justify-content: center;

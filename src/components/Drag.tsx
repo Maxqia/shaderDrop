@@ -2,7 +2,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import "./Drag.scss";
 import WebSocketTransport from '../transport/wstransport';
 import { FileInfo, Client, isValidClient, FakeClient} from '../TestObject';
 
@@ -162,23 +161,23 @@ export default class ShaderDropDrag extends React.Component<{}, ScannerState> {
     }
     
     return (
-      <div id="reactapp">
+      <div className="dragcomponent">
         <QRReader 
           onError={(error) => console.error(error)}
           onScan={(data) => this.handleScan(data)}
           facingMode="environment"
           frontFacing={false}
         />
-        <div id="bottomBar">
-          <div id="actionDiv">
+        <div className="bottomBar">
+          <div className="actionDiv">
             <button>Back</button>
-            <button id="send" onClick={() => this.send()}><img src="iconfinder_ic_file_upload_48px_352345.svg"/></button>
-            <img id="flip" src="iconfinder_rotate_on_1372387.svg"/>
+            <button className="send" onClick={() => this.send()}><img src="iconfinder_ic_file_upload_48px_352345.svg"/></button>
+            <img className="flip" src="iconfinder_rotate_on_1372387.svg"/>
           </div>
-          <div id="clientSelector">
-            <button className="bt" id="leftBt" onClick={() => this.left()}>&lt;</button>
+          <div className="clientSelector">
+            <button className="leftBt" onClick={() => this.left()}>&lt;</button>
             {clientSelected}
-            <button className="bt" id="rightBt" onClick={() => this.right()}>&gt;</button>
+            <button className="rightBt" onClick={() => this.right()}>&gt;</button>
           </div>
         </div>
       </div>

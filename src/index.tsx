@@ -1,6 +1,7 @@
 'use strict';
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
+import "./index.scss";
 
 import {
   BrowserRouter as Router,
