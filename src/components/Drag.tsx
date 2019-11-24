@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import WebSocketTransport from '../transport/wstransport';
-import { FileInfo, Client, isValidClient, FakeClient} from '../TestObject';
+import { FileInfo, Client } from '../TestObject';
 
 import { QRReader } from './QRReader';
 
@@ -27,42 +27,53 @@ const ClientInfo: React.FC<ClientProps> = (props) => {
   }
 }
 
-interface ScannerState {
+interface DragProps {
   clients: Client[];
   selectedClient: number;
+  
+  selectClient: any;
+  subscribeToClient: any; //TODO function defs
+  connectClients: any;
 }
 
-export default class ShaderDropDrag extends React.Component<{}, ScannerState> {
-  lastScannedClient: string = null;
-  transport: WebSocketTransport = new WebSocketTransport();
+interface DragState {
+  lastScannedClient: string;
+}
+
+export default class DragSubClient extends React.Component<DragProps, DragState> {
   constructor(props) {
     super(props);
     this.state = {
-      clients: [],
-      selectedClient: null,
+      lastScannedClient: null,
     };
-    this.selectClient = this.selectClient.bind(this);
     this.handleScan = this.handleScan.bind(this);
-    
-    this.transport.connect();
-    this.transport.on("clientInfo", this.clientInfoHandler.bind(this));
   }
   
   handleScan(content: string) {
     if (content == null) return;
 
-    this.lastScannedClient = content;
+    this.setState({lastScannedClient: content});
+    this.subscribeToClient(content);
+  }
+  
+  left() {
+    this.props.selectClient(this.props.selectedClient - 1);
+  }
+  
+  right() {
+    this.props.selectClient(this.props.selectedClient + 1);
+  }
+  
+  
+  subscribeToClient(content: string) {
     let client = this.getClient(content);
     if (client == null) { // new client!
-      this.transport.sendJSON({
-        msgType: "subscribe",
-        stringID: content,
-      });
+      this.props.subscribeToClient(content);
     }
   }
   
   hasClient(id: string) {
-    for (let client of this.state.clients) {
+    for (let client of this.props.clients) {
       if (client.stringID === id) {
         return true;
       }
@@ -71,7 +82,7 @@ export default class ShaderDropDrag extends React.Component<{}, ScannerState> {
   }
   
   getClient(id: string) {
-    for (let client of this.state.clients) {
+    for (let client of this.props.clients) {
       if (client.stringID === id) {
         return client;
       }
@@ -79,85 +90,24 @@ export default class ShaderDropDrag extends React.Component<{}, ScannerState> {
     return null;
   }
   
-  clientInfoHandler(data: any) {
-    if (isValidClient(data.clientInfo)) {
-      this.updateClient(data.clientInfo);
-    }
-  }
-  
-  updateClient(client: Client) {
-    let clients = this.state.clients.slice();
-    let replacedClient = false;
-    for (let i = 0; i < clients.length; i++) {
-      if (client.stringID === clients[i].stringID) {
-        clients[i] = client;
-      }
-    }
-    
-    if (!replacedClient) {
-      console.log("new client: " + client.stringID);
-      clients = clients.concat(client);
-      this.transport.sendToID(client.stringID, JSON.stringify({
-          msgType : "scanned",
-      }));
-    }
-    
-    this.setState({
-      clients: clients,
-      selectedClient: this.state.clients.length <= 0 ? 0 : this.state.selectedClient,
-    });
-  }
-  
-  connectClients(cli1: Client, cli2: Client) {
-    this.transport.sendToID(cli1.stringID, JSON.stringify({
-      msgType : "connect",
-      clientID : cli2.stringID,
-    }));
-  }
-  
-  selectClient(idxNum: number) {
-    if (isNaN(idxNum)) return;
-    if (this.state.clients.length <= 0) return;
-    if (idxNum < 0) return;
-    if (idxNum >= this.state.clients.length) return;
-    this.setState({selectedClient: idxNum});
-  }
-  
-  left() {
-    this.selectClient(this.state.selectedClient - 1);
-  }
-  
-  right() {
-    this.selectClient(this.state.selectedClient + 1);
-  }
-  
   send() {
-    if (this.lastScannedClient != null) {
-      let client = this.getClient(this.lastScannedClient);
+    if (this.state.lastScannedClient != null) {
+      let client = this.getClient(this.state.lastScannedClient);
       if (client != null) {
-        this.connectClients(this.state.clients[this.state.selectedClient], client);
-        
-        // remove the newly connected clients from clients array
-        let cArr: Client[] = this.state.clients.slice();
-        cArr.splice(this.state.selectedClient);
-        cArr = cArr.filter((elem) => elem != client);
+        let length = this.props.connectClients(this.props.clients[this.props.selectedClient], client);
         let selected: number = null;
-        if(cArr.length >= 1) {
+        if(length >= 1) {
           selected = 0;
         }
-        
-        this.setState({
-          clients: cArr,
-          selectedClient: selected,
-        });
+        this.props.selectClient(selected);
       }
     }
   }
   
   render() {
     var clientSelected = <button>No Clients Available</button>
-    if (this.state.selectedClient != null) {
-      clientSelected = <ClientInfo client={this.state.clients[this.state.selectedClient]}/>;
+    if (this.props.selectedClient != null) {
+      clientSelected = <ClientInfo client={this.props.clients[this.props.selectedClient]}/>;
     }
     
     return (

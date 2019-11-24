@@ -5,7 +5,7 @@ import { StreamSaver } from '../transport/wsfill';
 import bytes from 'bytes';
 import classNames from 'classnames';
 
-import { FakeFile, FakeClient, FileInfo } from "../TestObject";
+import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "../TestObject";
 
 import * as WebStr from "../transport/webstr";
 import WebSocketTransport from "../transport/wstransport";
@@ -22,12 +22,16 @@ import {
 } from "react-router-dom";
 
 interface ClientState {
-  fileInfo: FileInfo;
-  hasFile: boolean;
   id: string;
+  
   sending: boolean;
+  hasFile: boolean;
+  fileInfo: FileInfo;
   transferState: string;
   transferPercent: number;
+  
+  clients: Client[]; /* subscribed clients */
+  selectedClient: number;
 }
 
 /* The Main Logic for the Browser Client */
@@ -42,12 +46,14 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
     super(props);
     
     this.state = {
+      id: null,
       fileInfo: null,
       hasFile: false,
-      id: null,
       sending: false,
       transferState: "Not Connected",
       transferPercent: 0,
+      clients: [],
+      selectedClient: null,
     };
     
     this.updateServer = this.updateServer.bind(this);
@@ -56,6 +62,7 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
     this.wrtc = new WebRTCTransport(); 
     this.ws.msgRecv = this.newClientMsgRecv.bind(this);
     this.ws.id.register(this.getID.bind(this));
+    this.ws.on("clientInfo", this.clientInfoHandler.bind(this));
     
     this.ws.connect();
   }
@@ -65,7 +72,7 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
       <Router>
         <Switch>
           <Route path="/drag">
-            <DragSubClient/>
+            <DragSubClient clients={this.state.clients} selectedClient={this.state.selectedClient} selectClient={this.selectClient.bind(this)} subscribeToClient={this.subscribeToClient.bind(this)} connectClients={this.connectClients.bind(this)}/>
           </Route>
           <Route path="/">
             <DropSubClient id={this.state.id} fileInfo={this.state.fileInfo} transferState={this.state.transferState} transferPercent={this.state.transferPercent} onFileDrop={this.onFileDrop.bind(this)}/>
@@ -200,6 +207,72 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
       transferState: str,
       transferPercent: percentDone,
     });
+  }
+  
+  
+  /* Subscription Handling */
+  subscribeToClient(content: string) {
+    this.ws.sendJSON({
+      msgType: "subscribe",
+      stringID: content,
+    });
+  }
+
+  clientInfoHandler(data: any) {
+    if (isValidClient(data.clientInfo)) {
+      this.updateClient(data.clientInfo);
+    }
+  }
+  
+  updateClient(client: Client) {
+    let clients = this.state.clients.slice();
+    let replacedClient = false;
+    for (let i = 0; i < clients.length; i++) {
+      if (client.stringID === clients[i].stringID) {
+        clients[i] = client;
+      }
+    }
+    
+    if (!replacedClient) {
+      console.log("new client: " + client.stringID);
+      clients = clients.concat(client);
+      this.ws.sendToID(client.stringID, JSON.stringify({
+          msgType : "scanned",
+      }));
+    }
+    
+    this.setState({
+      clients: clients,
+      selectedClient: this.state.clients.length <= 0 ? 0 : this.state.selectedClient,
+    });
+  }
+  /* end Subscription Handling */
+  
+  // returns how many clients left after removing these two
+  connectClients(cli1: Client, cli2: Client): number {
+    this.ws.sendToID(cli1.stringID, JSON.stringify({
+      msgType : "connect",
+      clientID : cli2.stringID,
+    }));
+    
+    // remove the newly connected clients from clients array
+    let cArr: Client[] = this.state.clients.slice();
+    cArr.splice(this.state.selectedClient);
+    cArr = cArr.filter((elem) => elem != cli1);
+    cArr = cArr.filter((elem) => elem != cli2);
+    
+    this.setState({
+      clients: cArr,
+    });
+    return cArr.length;
+  }
+  
+  selectClient(idxNum: number) {
+    if (isNaN(idxNum)) return;
+    if (this.state.clients.length <= 0) return;
+    if (idxNum < 0) return;
+    if (idxNum >= this.state.clients.length) return;
+    this.setState({selectedClient: idxNum});
   }
 }
 
