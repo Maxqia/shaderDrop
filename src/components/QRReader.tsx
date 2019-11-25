@@ -16,6 +16,10 @@ export class QRReader extends React.Component<QRReaderProps,{}> {
     super(props);
   }
   
+  render() {
+    return (<video id="preview" className={this.props.className}></video>);
+  }
+  
   componentDidMount() {
     this.scanner = new Instascan.Scanner({
       video: document.getElementById('preview'),
@@ -36,7 +40,7 @@ export class QRReader extends React.Component<QRReaderProps,{}> {
     });
   }
   
-  render() {
-    return (<video id="preview" className={this.props.className}></video>);
+  componentWillUnmount() {
+    this.scanner.stop();
   }
 }
