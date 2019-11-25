@@ -13,6 +13,7 @@ import WebRTCTransport from "../transport/rtctransport";
 
 import DropSubClient from "./Drop";
 import DragSubClient from "./Drag";
+import PushPull from "./PushPull";
 
 import {
   BrowserRouter as Router,
@@ -71,6 +72,12 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
     return (
       <Router>
         <Switch>
+          <Route path="/pull">
+            <PushPull self={this.state.id} connectClients={this.connectClients.bind(this)}/>
+          </Route>
+          <Route path="/push">
+            <PushPull self={this.state.id} connectClients={this.connectClients.bind(this)}/>
+          </Route>
           <Route path="/drag">
             <DragSubClient clients={this.state.clients} selectedClient={this.state.selectedClient} selectClient={this.selectClient.bind(this)} subscribeToClient={this.subscribeToClient.bind(this)} connectClients={this.connectClients.bind(this)}/>
           </Route>
@@ -257,7 +264,6 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
     
     // remove the newly connected clients from clients array
     let cArr: Client[] = this.state.clients.slice();
-    cArr.splice(this.state.selectedClient);
     cArr = cArr.filter((elem) => elem != cli1);
     cArr = cArr.filter((elem) => elem != cli2);
     

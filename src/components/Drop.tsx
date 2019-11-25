@@ -1,5 +1,6 @@
 'use strict';
-import React, {Component} from 'react';
+import React from "react";
+import { Link } from "react-router-dom";
 
 import { FileInfo } from "../TestObject";
 import { FileDropFunc } from "./FileDrop";
@@ -37,6 +38,9 @@ export default class DropSubClient extends React.Component<DropperProps,{}> {
             <nav className="navbar navbar-light bg-light">
               <div className="container-fluid">
                 <a className="navbar-brand" href="#">shaderDrop</a>
+                <Link to="/pull">Pull</Link>
+                <Link to="/drag">Drag</Link>
+                <Link to="/push">Push</Link>
                 <status-indicator intermediary></status-indicator>
               </div>
             </nav>
