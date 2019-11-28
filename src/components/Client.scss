@@ -47,11 +47,14 @@ $break-point: 1000px;
 $radius: 10px;
 .fileDrop {
   border-radius: $radius;
+  padding: 10px;
+  width: 400px;
+}
+
+.fileDrop * {
   transition: background-color 0.15s;
   transition-timing-function: ease-out;
   background-color: white;
-  padding: 10px;
-  width: 400px;
 }
 
 .fileBorder {
@@ -62,7 +65,7 @@ $radius: 10px;
 }
 
 $hover-color: #bdebff;
-.hover {
+.hover * {
   background-color: $hover-color;
 }
 
