@@ -1,12 +1,7 @@
 @import "~bootstrap/scss/bootstrap";
 
-.dragcomponent {
-  width: 100%;
-  height: 100%;
-  max-width: 100vw;
-  max-height: 100vh;
+.cameraflex {
   display: flex;
-  
   flex-direction: column;
   justify-content: flex-end;
   
@@ -43,9 +38,15 @@
 
 .actionDiv {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
   align-items: center;
   margin-bottom: 1vh;
+}
+
+.actionDiv > * {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .flip {
@@ -60,3 +61,4 @@
 }
 
 /* end bottomBar styling */
+

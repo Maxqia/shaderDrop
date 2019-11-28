@@ -1,5 +1,7 @@
 'use strict';
 import React, {Component} from 'react';
+import { History } from 'history';
+import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 
 import { StreamSaver } from '../transport/wsfill';
 import bytes from 'bytes';
@@ -15,12 +17,7 @@ import DropSubClient from "./Drop";
 import DragSubClient from "./Drag";
 import PushPull from "./PushPull";
 
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
+
 
 interface ClientState {
   id: string;
@@ -70,7 +67,7 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
   
   render() {
     return (
-      <Router>
+      <BrowserRouter>
         <Switch>
           <Route path="/pull">
             <PushPull self={this.state.id} connectClients={this.connectClients.bind(this)}/>
@@ -85,7 +82,7 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
             <DropSubClient id={this.state.id} fileInfo={this.state.fileInfo} transferState={this.state.transferState} transferPercent={this.state.transferPercent} onFileDrop={this.onFileDrop.bind(this)}/>
           </Route>
         </Switch>
-      </Router>
+      </BrowserRouter>
     );
   }
 

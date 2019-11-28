@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 
 import { Client } from "../TestObject";
 import { QRReader } from './QRReader';
+import Back from "./Back";
 
 interface PushPullProps {
   self: string;
@@ -19,7 +20,7 @@ export default class PushPull extends React.Component<PushPullProps, {}> {
   
   render() {
     return (
-      <div className="dragcomponent">
+      <div className="cameraflex fullscreen">
         <QRReader 
           onError={(error) => console.error(error)}
           onScan={(data) => this.handleScan(data)}
@@ -28,8 +29,8 @@ export default class PushPull extends React.Component<PushPullProps, {}> {
         />
         <div className="bottomBar">
           <div className="actionDiv">
-            <Link to="/">Back</Link> {/* TODO better history handling */}
-            <img className="flip" src="iconfinder_rotate_on_1372387.svg"/>
+            <div><Back>Back</Back></div>
+            <div><img className="flip" src="iconfinder_rotate_on_1372387.svg"/></div>
           </div>
         </div>
       </div>
