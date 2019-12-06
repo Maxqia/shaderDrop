@@ -7,8 +7,7 @@ import { StreamSaver } from '../transport/wsfill';
 import bytes from 'bytes';
 import classNames from 'classnames';
 
-import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "../TestObject";
-
+import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "../transport/types";
 import * as WebStr from "../transport/webstr";
 import WebSocketTransport from "../transport/wstransport";
 import WebRTCTransport from "../transport/rtctransport";

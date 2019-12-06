@@ -8,7 +8,7 @@ import fs from 'fs';
 import WebSocketTransport from "./transport/wstransport";
 import WebRTCTransport from "./transport/rtctransport";
 import { RTCWriteStream, RTCReadStream } from "./transport/nodestr";
-import { FileInfo } from "./TestObject";
+import { FileInfo } from "./transport/types";
 
 
 

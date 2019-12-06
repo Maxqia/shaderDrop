@@ -3,7 +3,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import WebSocketTransport from '../transport/wstransport';
-import { FileInfo, Client } from '../TestObject';
+import { FileInfo, Client } from '../transport/types';
 
 import { QRReader } from './QRReader';
 import Back from "./Back";

@@ -10,7 +10,7 @@ import nacl from "tweetnacl";
 import naclutil from "tweetnacl-util";
 import uuidv1 from "uuid/v1";
 
-import {Client} from "./TestObject";
+import {Client} from "./transport/types";
 import {MessageHandler} from "./transport/transport";
 
 /* Implements basic message passing (server-side) */

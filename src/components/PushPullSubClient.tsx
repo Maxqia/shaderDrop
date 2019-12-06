@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 
-import { Client } from "../TestObject";
+import { Client } from "../transport/types";
 import { QRReader } from './QRReader';
 import Back from "./Back";
 
