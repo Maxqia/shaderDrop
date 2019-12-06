@@ -13,9 +13,9 @@ import * as WebStr from "../transport/webstr";
 import WebSocketTransport from "../transport/wstransport";
 import WebRTCTransport from "../transport/rtctransport";
 
-import DropSubClient from "./Drop";
-import DragSubClient from "./Drag";
-import PushPull from "./PushPull";
+import DropSubClient from "./DropSubClient";
+import DragSubClient from "./DragSubClient";
+import PushPull from "./PushPullSubClient";
 
 
 
