@@ -72,11 +72,16 @@ export const IDDisplay: React.FC<IDDisplayProps> = (props) => {
   if (props.id != null) {
     return (
       <div className={props.className}>
-        <div className="qr"><QRCode value={props.id}/></div>
+        <div className="qr"><QRCode size={116} value={props.id}/></div>
         <div className="id text-center">{props.id}</div>
       </div>
     );
   } else {
-    return null;
+    return (
+      <div className={props.className}>
+        <div className="qr"><img src="qrmark.png"/></div>
+        <div className="id text-center">unknown id</div>
+      </div>
+    );
   }
 }
