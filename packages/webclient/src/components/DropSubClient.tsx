@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { FileInfo } from "../transport/types";
+import { FileInfo } from "@shaderdrop/transport/lib/types";
 import { FileDropFunc } from "./FileDrop";
 import { IDDisplay, StateDisplay, FileDropDisplay } from "./Display";
 

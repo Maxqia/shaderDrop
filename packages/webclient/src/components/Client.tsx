@@ -3,14 +3,14 @@ import React, {Component} from 'react';
 import { History } from 'history';
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 
-import { StreamSaver } from '../transport/wsfill';
+import { StreamSaver } from '@shaderdrop/transport/lib/wsfill';
 import bytes from 'bytes';
 import classNames from 'classnames';
 
-import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "../transport/types";
-import * as WebStr from "../transport/webstr";
-import WebSocketTransport from "../transport/wstransport";
-import WebRTCTransport from "../transport/rtctransport";
+import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "@shaderdrop/transport/lib/types";
+import * as WebStr from "@shaderdrop/transport/lib/webstr";
+import WebSocketTransport from "@shaderdrop/transport/lib/wstransport";
+import WebRTCTransport from "@shaderdrop/transport/lib/rtctransport";
 
 import DropSubClient from "./DropSubClient";
 import DragSubClient from "./DragSubClient";

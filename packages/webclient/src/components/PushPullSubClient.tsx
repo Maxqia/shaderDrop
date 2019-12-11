@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 
-import { Client } from "../transport/types";
+import { Client } from "@shaderdrop/transport/lib/types";
 import { QRReader } from './QRReader';
 import Back from "./Back";
 

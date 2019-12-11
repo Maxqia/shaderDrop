@@ -10,8 +10,8 @@ import nacl from "tweetnacl";
 import naclutil from "tweetnacl-util";
 import uuidv1 from "uuid/v1";
 
-import {Client} from "./transport/types";
-import {MessageHandler} from "./transport/transport";
+import {Client} from "@shaderdrop/transport/lib/types";
+import {MessageHandler} from "@shaderdrop/transport/lib/transport";
 
 /* Implements basic message passing (server-side) */
 var clientList = new Map();

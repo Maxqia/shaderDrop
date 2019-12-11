@@ -3,7 +3,7 @@ import WebSocket from 'isomorphic-ws';
 import nacl from 'tweetnacl';
 import naclutil from 'tweetnacl-util';
 
-import {FutureValue, FutureEvent} from '../event';
+import {FutureValue, FutureEvent} from '@shaderdrop/event';
 import {Transport, MessageType} from './transport';
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // HACK : ignore self signed certificate

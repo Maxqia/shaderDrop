@@ -2,8 +2,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import WebSocketTransport from '../transport/wstransport';
-import { FileInfo, Client } from '../transport/types';
+import WebSocketTransport from '@shaderdrop/transport/lib/wstransport';
+import { FileInfo, Client } from '@shaderdrop/transport/lib/types';
 
 import { QRReader } from './QRReader';
 import Back from "./Back";

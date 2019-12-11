@@ -3,7 +3,7 @@
 import {RTCPeerConnection, RTCDataChannel, RTCSessionDescription, RTCIceCandidate} from 'wrtc';
 
 import {Transport, MessageType} from './transport';
-import {FutureEvent} from '../event';
+import {FutureEvent} from '@shaderdrop/event';
 
 export default class WebRTCTransport extends Transport {
   open: FutureEvent<Event> = new FutureEvent();

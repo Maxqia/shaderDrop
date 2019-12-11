@@ -5,10 +5,10 @@ import qrCode from 'qrcode-terminal';
 import nodePV from 'node-pv';
 import fs from 'fs';
 
-import WebSocketTransport from "./transport/wstransport";
-import WebRTCTransport from "./transport/rtctransport";
-import { RTCWriteStream, RTCReadStream } from "./transport/nodestr";
-import { FileInfo } from "./transport/types";
+import WebSocketTransport from "@shaderdrop/transport/lib/wstransport";
+import WebRTCTransport from "@shaderdrop/transport/lib/rtctransport";
+import { RTCWriteStream, RTCReadStream } from "@shaderdrop/transport/lib/nodestr";
+import { FileInfo } from "@shaderdrop/transport/lib/types";
 
 
 

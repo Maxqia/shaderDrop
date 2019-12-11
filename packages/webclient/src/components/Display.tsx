@@ -4,7 +4,7 @@ import bytes from 'bytes';
 import QRCode from 'qrcode.react';
 
 import { FileDrop, FileDropFunc } from "./FileDrop";
-import { FileInfo } from "../transport/types";
+import { FileInfo } from "@shaderdrop/transport/lib/types";
 
 interface FileDisplayProps {
   className?: string;

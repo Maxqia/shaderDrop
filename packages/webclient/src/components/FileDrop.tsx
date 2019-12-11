@@ -1,8 +1,8 @@
 import React, { DragEvent } from 'react';
 import classNames from 'classnames';
 
-import {FileInfo} from "../transport/types";
-import * as WebStr from "../transport/webstr";
+import {FileInfo} from "@shaderdrop/transport/lib/types";
+import * as WebStr from "@shaderdrop/transport/lib/webstr";
 
 export type FileDropFunc = (fileInfo: FileInfo, readableStream: ReadableStream) => void;
 interface FileDropProps {

@@ -1,0 +1,26 @@
+{
+  "name": "shaderdrop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/command.ts",
+  "scripts": {
+    "tsc": "tsc",
+    "postinstall": "patch-package",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@shaderdrop/event": "^1.0.0",
+    "@shaderdrop/transport": "^1.0.0",
+    "node-pv": "^0.1.5",
+    "patch-package": "^6.2.0",
+    "qrcode-terminal": "^0.12.0"
+  },
+  "devDependencies": {
+    "lerna": "^3.19.0"
+  },
+  "bin": {
+    "shaderdrop": "./lib/command.js"
+  }
+}

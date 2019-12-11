@@ -1,0 +1,28 @@
+{
+  "name": "@shaderdrop/transport",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.3",
+    "@shaderdrop/event": "^1.0.0",
+    "@types/ws": "^6.0.4",
+    "isomorphic-ws": "^4.0.1",
+    "streamsaver": "^2.0.3",
+    "tweetnacl": "^1.0.1",
+    "tweetnacl-util": "^0.15.0",
+    "web-streams-polyfill": "^2.0.6",
+    "webrtc-adapter": "^7.3.0",
+    "wrtc": "^0.4.2",
+    "ws": "^7.2.0"
+  },
+  "devDependencies": {
+    "lerna": "^3.19.0"
+  }
+}

@@ -8,5 +8,9 @@
     "module": "commonjs",
     "target": "es6",
     "allowJs": true,
-  }
+    "declaration": true,
+  },
+  "exclude": [
+    "**/*.test.ts",
+  ]
 }
