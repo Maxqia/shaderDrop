@@ -2,8 +2,8 @@ import 'mocha';
 import { expect } from 'chai';
 import WebSocket from "ws";
 
-import {setupWsServer} from '../server';
-import WebSocketTransport from '../transport/wstransport';
+import {setupWsServer} from '../packages/server/src/server';
+import WebSocketTransport from '../packages/transport/src/wstransport';
 
 describe('websocket transport test', () => {
   let server;
