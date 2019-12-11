@@ -37,11 +37,15 @@ export default class DropSubClient extends React.Component<DropperProps,{}> {
           <div className="">
             <nav className="navbar navbar-light bg-light">
               <div className="container-fluid">
-                <a className="navbar-brand" href="#">shaderDrop</a>
-                <Link to="/pull">Pull</Link>
-                <Link to="/drag">Drag</Link>
-                <Link to="/push">Push</Link>
-                <status-indicator intermediary></status-indicator>
+                <div>
+                  <a className="navbar-brand" href="#">shaderDrop</a>
+                </div>
+                <div className="linkBar">
+                  <Link to="/pull">Pull</Link>
+                  <Link to="/drag">Drag</Link>
+                  <Link to="/push">Push</Link>
+                  <status-indicator intermediary></status-indicator>
+                </div>
               </div>
             </nav>
           </div>
