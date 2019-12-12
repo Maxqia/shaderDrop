@@ -186,8 +186,8 @@ export function setupWsServer(wsServer) {
 
 function startup() {
   let app = express();
-  app.use(express.static("public"));
-  app.use(express.static("dist"));
+  app.use(express.static("../webclient/public"));
+  app.use(express.static("../webclient/dist"));
   
   let server;
   if (process.env.HTTPS) {
