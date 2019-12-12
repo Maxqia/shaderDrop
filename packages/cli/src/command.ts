@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+/* ^^ for when it gets compiled into the final command.js */
 'use strict';
 //const whyIsNodeRunning = require('why-is-node-running')
 //global.whyIsNodeRunning = whyIsNodeRunning;
