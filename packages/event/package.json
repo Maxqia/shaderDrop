@@ -1,6 +1,6 @@
 {
   "name": "@shaderdrop/event",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "small event package for shaderdrop",
   "main": "lib/event.js",
   "typings": "lib/event.d.ts",
@@ -21,7 +21,6 @@
   "directories": {
     "lib": "lib"
   },
-  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Maxqia/shaderDrop.git"

@@ -1,6 +1,6 @@
 {
   "name": "shaderdrop",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "cli client for shaderdrop",
   "main": "src/command.ts",
   "scripts": {
@@ -11,8 +11,8 @@
   "author": "maxqia",
   "license": "UNLICENSED",
   "dependencies": {
-    "@shaderdrop/event": "^0.0.2",
-    "@shaderdrop/transport": "^0.0.2",
+    "@shaderdrop/event": "^0.0.3",
+    "@shaderdrop/transport": "^0.0.3",
     "node-pv": "^0.1.5",
     "patch-package": "^6.2.0",
     "qrcode-terminal": "^0.12.0"
