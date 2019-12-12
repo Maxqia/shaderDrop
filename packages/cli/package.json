@@ -1,6 +1,6 @@
 {
   "name": "shaderdrop",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "src/command.ts",
   "scripts": {
@@ -11,8 +11,8 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@shaderdrop/event": "^0.0.1",
-    "@shaderdrop/transport": "^0.0.1",
+    "@shaderdrop/event": "^0.0.2",
+    "@shaderdrop/transport": "^0.0.2",
     "node-pv": "^0.1.5",
     "patch-package": "^6.2.0",
     "qrcode-terminal": "^0.12.0"

@@ -1,6 +1,6 @@
 {
   "name": "@shaderdrop/event",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "lib/event.js",
   "typings": "lib/event.d.ts",
