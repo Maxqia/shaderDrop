@@ -1,14 +1,14 @@
 {
   "name": "shaderdrop",
   "version": "0.0.2",
-  "description": "",
+  "description": "cli client for shaderdrop",
   "main": "src/command.ts",
   "scripts": {
     "prepare": "tsc",
     "postinstall": "patch-package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "maxqia",
   "license": "UNLICENSED",
   "dependencies": {
     "@shaderdrop/event": "^0.0.2",
@@ -24,5 +24,19 @@
   },
   "bin": {
     "shaderdrop": "./lib/command.js"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maxqia/shaderDrop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maxqia/shaderDrop/issues"
+  },
+  "homepage": "https://github.com/Maxqia/shaderDrop#readme"
 }

@@ -1,18 +1,33 @@
 {
   "name": "@shaderdrop/event",
   "version": "0.0.2",
-  "description": "",
+  "description": "small event package for shaderdrop",
   "main": "lib/event.js",
   "typings": "lib/event.d.ts",
   "scripts": {
     "prepare": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "maxqia",
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/node": "^12.12.17",
     "lerna": "^3.19.0",
     "typescript": "^3.7.3"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maxqia/shaderDrop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maxqia/shaderDrop/issues"
+  },
+  "homepage": "https://github.com/Maxqia/shaderDrop#readme"
 }

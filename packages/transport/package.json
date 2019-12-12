@@ -1,13 +1,13 @@
 {
   "name": "@shaderdrop/transport",
   "version": "0.0.2",
-  "description": "",
+  "description": "transport layer for shaderdrop",
   "main": "src/index.js",
   "scripts": {
     "prepare": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "maxqia",
   "license": "UNLICENSED",
   "dependencies": {
     "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.3",
@@ -26,5 +26,19 @@
     "@types/node": "^12.12.17",
     "lerna": "^3.19.0",
     "typescript": "^3.7.3"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Maxqia/shaderDrop.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Maxqia/shaderDrop/issues"
+  },
+  "homepage": "https://github.com/Maxqia/shaderDrop#readme"
 }
