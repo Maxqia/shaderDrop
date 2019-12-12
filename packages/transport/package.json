@@ -1,6 +1,6 @@
 {
   "name": "@shaderdrop/transport",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "transport layer for shaderdrop",
   "main": "src/index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.3",
-    "@shaderdrop/event": "^0.0.3",
+    "@shaderdrop/event": "^0.0.4",
     "@types/ws": "^6.0.4",
     "isomorphic-ws": "^4.0.1",
     "streamsaver": "^2.0.3",
