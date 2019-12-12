@@ -54,7 +54,16 @@ export default class WebSocketTransport extends Transport {
   
   connect(url?: string): Promise<WebSocket.OpenEvent> {
     if (typeof url === 'undefined') {
-      url = typeof location !== 'undefined' ? "wss://"+location.host+"/websocket/" : "wss://127.0.0.1:8082/websocket/";
+      if (typeof location === 'undefined') {
+        url = "wss://shaderdrop.com/websocket/";
+      } else { // try to build url from location
+        if (location.protocol === "https:") {
+          url = "wss:";
+        } else {
+          url = "ws:";
+        }
+        url += "//" + location.host + "/websocket/";
+      }
     }
     this.conn = new WebSocket(url);
     
