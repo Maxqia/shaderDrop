@@ -1,7 +1,7 @@
 **/node_modules
 **/lib
-**/package-lock.json
 cert.pem
 key.pem
 dist/
 /test/
+lerna-debug.log

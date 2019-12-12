@@ -1,18 +1,18 @@
 {
   "name": "shaderdrop",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "src/command.ts",
   "scripts": {
-    "tsc": "tsc",
+    "prepare": "tsc",
     "postinstall": "patch-package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
-    "@shaderdrop/event": "^1.0.0",
-    "@shaderdrop/transport": "^1.0.0",
+    "@shaderdrop/event": "^0.0.1",
+    "@shaderdrop/transport": "^0.0.1",
     "node-pv": "^0.1.5",
     "patch-package": "^6.2.0",
     "qrcode-terminal": "^0.12.0"

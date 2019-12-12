@@ -1,11 +1,11 @@
 {
   "name": "@shaderdrop/event",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "lib/event.js",
   "typings": "lib/event.d.ts",
   "scripts": {
-    "tsc": "tsc",
+    "prepare": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

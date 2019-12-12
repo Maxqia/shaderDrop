@@ -1,15 +1,14 @@
 {
   "name": "@shaderdrop/server",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
-    "tsc" : "exit 0",
-    "server": "ts-node src/server.ts",
+    "start": "ts-node src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@shaderdrop/transport": "^1.0.0",
+    "@shaderdrop/transport": "^0.0.1",
     "@types/ws": "^6.0.4",
     "express": "^4.17.1",
     "ts-node": "^8.5.4",
