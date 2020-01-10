@@ -1,5 +1,10 @@
+const webpack = require('webpack');
 const path = require('path');
 var fs = require('fs');
+
+var childProcess = require('child_process');
+var version = childProcess.execSync('git describe --dirty').toString();
+console.log(version);
 
 module.exports = {
   mode: 'development',
@@ -67,4 +72,9 @@ module.exports = {
       },
     },
   },
+  plugins: [
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(version),
+    }),
+  ],
 };

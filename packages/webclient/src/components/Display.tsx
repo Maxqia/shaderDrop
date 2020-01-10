@@ -14,7 +14,7 @@ interface FileDisplayProps {
 export class FileDisplay extends React.Component<FileDisplayProps, {}> {
   render() {
     return (
-      <div className={classNames(this.props.className, "container")}>
+      <div className={classNames(this.props.className)}>
         <div className="row">
           <div className="col">
             {this.props.file.name}
