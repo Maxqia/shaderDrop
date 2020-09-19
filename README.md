@@ -1,5 +1,5 @@
 # shaderDrop
-setting up pipes via QR codes - 
+setting up pipes via QR codes -
 [Video Demo](https://www.youtube.com/watch?v=ysDmQjFNMt0)
 
 
@@ -8,10 +8,17 @@ setting up pipes via QR codes -
     npm install
     npx lerna bootstrap
 
-## compile and run server
-    npx lerna run tsc
+## compile webclient and run server
     cd packages/webclient/
-    npx run webpack
+    npx webpack
     cd ../server/
-    PORT=8080 npm run server
+
+    openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj '/CN=localhost' # generate certificate because web browsers won't let you use the camera without it
+    PORT=8443 HTTPS=true SSLPRIV="key.pem" SSLPUB="cert.pem" npm run start
+    
+## run cli client
+   cd packages/cli/
+   npx ts-node src/command.ts
+   (or for the compiled version on any computer with npx)
+   npx shaderdrop
 
