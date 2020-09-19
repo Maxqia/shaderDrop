@@ -10,22 +10,22 @@
   "author": "maxqia",
   "license": "UNLICENSED",
   "dependencies": {
-    "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.3",
+    "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.5",
     "@shaderdrop/event": "^0.0.4",
-    "@types/ws": "^6.0.4",
+    "@types/ws": "^7.2.6",
     "isomorphic-ws": "^4.0.1",
     "streamsaver": "^2.0.3",
     "tweetnacl": "^1.0.1",
     "tweetnacl-util": "^0.15.0",
-    "web-streams-polyfill": "^2.0.6",
+    "web-streams-polyfill": "^3.0.0",
     "webrtc-adapter": "^7.3.0",
     "wrtc": "^0.4.2",
     "ws": "^7.2.0"
   },
   "devDependencies": {
-    "@types/node": "^12.12.17",
-    "lerna": "^3.19.0",
-    "typescript": "^3.7.3"
+    "@types/node": "^14.11.1",
+    "lerna": "^3.22.1",
+    "typescript": "^4.0.3"
   },
   "publishConfig": {
     "access": "public"

@@ -19,8 +19,8 @@
     "ws": "^7.2.0"
   },
   "devDependencies": {
-    "@types/node": "^12.12.17",
-    "lerna": "^3.19.0",
+    "@types/node": "^12.12.62",
+    "lerna": "^3.22.1",
     "typescript": "^3.7.3"
   }
 }
