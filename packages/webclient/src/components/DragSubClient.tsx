@@ -112,26 +112,17 @@ export default class DragSubClient extends React.Component<DragProps, DragState>
     }
     
     return (
-      <div className="cameraflex fullscreen">
-        <QRReader 
+      <QRReader
           onError={(error) => console.error(error)}
           onScan={(data) => this.handleScan(data)}
-          facingMode="environment"
-          frontFacing={false}
-        />
-        <div className="bottomBar">
-          <div className="actionDiv">
-            <div><Back>Back</Back></div>
-            <div><button className="send" onClick={() => this.send()}><img src="iconfinder_ic_file_upload_48px_352345.svg"/></button></div>
-            <div><img className="flip" src="iconfinder_rotate_on_1372387.svg"/></div>
-          </div>
+          toolbar={<div><button className="send" onClick={() => this.send()}><img src="iconfinder_ic_file_upload_48px_352345.svg"/></button></div>}
+      >
           <div className="clientSelector">
             <button className="leftBt" onClick={() => this.left()}>&lt;</button>
             {clientSelected}
             <button className="rightBt" onClick={() => this.right()}>&gt;</button>
           </div>
-        </div>
-      </div>
+      </QRReader>
     );
   }
 }

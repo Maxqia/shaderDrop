@@ -22,3 +22,5 @@ setting up pipes via QR codes -
    (or for the compiled version on any computer with npx)
    npx shaderdrop
 
+### Attribution
+https://www.iconfinder.com/icons/1372387/landscape_off_on_orientation_rotate_icon

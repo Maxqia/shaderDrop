@@ -20,20 +20,10 @@ export default class PushPull extends React.Component<PushPullProps, {}> {
   
   render() {
     return (
-      <div className="cameraflex fullscreen">
-        <QRReader 
+       <QRReader
           onError={(error) => console.error(error)}
           onScan={(data) => this.handleScan(data)}
-          facingMode="environment"
-          frontFacing={false}
-        />
-        <div className="bottomBar">
-          <div className="actionDiv">
-            <div><Back>Back</Back></div>
-            <div><img className="flip" src="iconfinder_rotate_on_1372387.svg"/></div>
-          </div>
-        </div>
-      </div>
+       />
     );
   }
   
