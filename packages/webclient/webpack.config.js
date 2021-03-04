@@ -49,6 +49,13 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.jsx', '.js', '.json' ],
+    fallback: {
+      "fs": false,
+      "path": false,
+      "crypto": false,
+      //"path": require.resolve("path-browserify"),
+      //"crypto": require.resolve("crypto-browserify"),
+    },
   },
   entry: {
     index: './src/index.tsx',
@@ -57,9 +64,6 @@ module.exports = {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
     publicPath: '/',
-  },
-  node: { // https://github.com/webpack-contrib/css-loader/issues/447
-    fs: "empty"
   },
   devServer: {
     https: true,
@@ -77,6 +81,9 @@ module.exports = {
   plugins: [
     new webpack.DefinePlugin({
       __VERSION__: JSON.stringify(version),
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
     }),
   ],
 };

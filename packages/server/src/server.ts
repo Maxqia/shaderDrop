@@ -8,7 +8,7 @@ import express from "express";
 
 import nacl from "tweetnacl";
 import naclutil from "tweetnacl-util";
-import uuidv1 from "uuid/v1";
+import { v1 as uuidv1 } from "uuid";
 
 import {Client} from "@shaderdrop/transport/lib/types";
 import {MessageHandler} from "@shaderdrop/transport/lib/transport";
