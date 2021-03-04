@@ -12,7 +12,6 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.0",
-    "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.5",
     "@shaderdrop/event": "^0.0.6",
     "@types/ws": "^7.4.0",
     "isomorphic-ws": "^4.0.1",
@@ -20,7 +19,6 @@
     "streamsaver": "^2.0.5",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
-    "web-streams-polyfill": "^3.0.2",
     "webrtc-adapter": "^7.7.0",
     "wrtc": "^0.4.7",
     "ws": "^7.4.3"
