@@ -40,8 +40,8 @@
   "dependencies": {
     "@eventstag/instascan": "^2.0.1",
     "@mattiasbuelens/web-streams-adapter": "0.1.0-alpha.5",
-    "@shaderdrop/event": "0.0.5",
-    "@shaderdrop/transport": "0.0.5",
+    "@shaderdrop/event": "^0.0.6",
+    "@shaderdrop/transport": "^0.0.6",
     "@types/react-router": "^5.1.12",
     "@types/react-router-dom": "^5.1.7",
     "@types/ws": "^7.4.0",
@@ -58,5 +58,5 @@
     "status-indicator": "^1.0.9",
     "streamsaver": "^2.0.5"
   },
-  "version": "0.0.5"
+  "version": "0.0.6"
 }

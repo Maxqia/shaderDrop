@@ -1,6 +1,6 @@
 {
   "name": "@shaderdrop/server",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "scripts": {
     "start": "ts-node src/server.ts",
@@ -8,7 +8,7 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "@shaderdrop/transport": "^0.0.5",
+    "@shaderdrop/transport": "^0.0.6",
     "@types/ws": "^7.4.0",
     "express": "^4.17.1",
     "ts-node": "^9.1.1",
