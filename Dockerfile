@@ -4,6 +4,7 @@ WORKDIR /usr/src/app
 RUN npm set unsafe-perm true
 
 COPY . .
+RUN npm install
 RUN npx lerna bootstrap
 
 WORKDIR /usr/src/app/packages/webclient
