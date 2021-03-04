@@ -5,6 +5,7 @@
   "main": "src/command.ts",
   "scripts": {
     "prepare": "tsc",
+    "watch": "tsc -w",
     "postinstall": "patch-package",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -49,6 +49,9 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.jsx', '.js', '.json' ],
+    alias: {
+      "@shaderdrop": path.resolve(__dirname, '../'),
+    },
     fallback: {
       "fs": false,
       "path": false,

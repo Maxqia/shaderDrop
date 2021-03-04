@@ -2,7 +2,6 @@ import React, { DragEvent } from 'react';
 import classNames from 'classnames';
 
 import {FileInfo} from "@shaderdrop/transport/lib/types";
-import * as WebStr from "@shaderdrop/transport/lib/webstr";
 
 export type FileDropFunc = (fileInfo: FileInfo, readableStream: ReadableStream) => void;
 interface FileDropProps {
@@ -44,7 +43,7 @@ export class FileDrop extends React.Component<FileDropProps, FileDropState> {
       name: "paste.txt",
       size: textBlob.size,
     };
-    this.props.onFileDrop(file, WebStr.fromBlob(textBlob));
+    this.props.onFileDrop(file, textBlob.stream());
     
     this.setState({text: ""});
   }
@@ -108,7 +107,7 @@ export class FileDrop extends React.Component<FileDropProps, FileDropState> {
       name: file.name,
       size: file.size,
     }
-    let readableStream = WebStr.fromBlob(file);
+    let readableStream = file.stream();
     this.props.onFileDrop(fileInfo, readableStream);
   }
   

@@ -3,14 +3,19 @@ import React, {Component} from 'react';
 import { History } from 'history';
 import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 
-import { StreamSaver } from '@shaderdrop/transport/lib/wsfill';
+var streams = require("web-streams-polyfill");
+import StreamSaver from 'streamsaver';
+import { createReadableStreamWrapper } from '@mattiasbuelens/web-streams-adapter';
+const toPolyfillReadable = createReadableStreamWrapper(ReadableStream);
+
+
 import bytes from 'bytes';
 import classNames from 'classnames';
 
-import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "@shaderdrop/transport/lib/types";
-import * as WebStr from "@shaderdrop/transport/lib/webstr";
-import WebSocketTransport from "@shaderdrop/transport/lib/wstransport";
-import WebRTCTransport from "@shaderdrop/transport/lib/rtctransport";
+import { Client, isValidClient, FakeFile, FakeClient, FileInfo } from "@shaderdrop/transport/src/types";
+import * as WebStr from "@shaderdrop/transport/src/webstr";
+import WebSocketTransport from "@shaderdrop/transport/src/wstransport";
+import WebRTCTransport from "@shaderdrop/transport/src/rtctransport";
 
 import DropSubClient from "./DropSubClient";
 import DragSubClient from "./DragSubClient";
@@ -191,7 +196,11 @@ export default class ShaderDropClient extends React.Component<{},ClientState> {
       sending: true,
       hasFile: true,
     }, () => {
-      this.stream = stream;
+      if (!(stream instanceof ReadableStream)) {
+        this.stream = toPolyfillReadable(stream) as ReadableStream;
+      } else {
+        this.stream = stream;
+      }
       this.updateServer();
       if (this.clientWaiting) {
         this.send();

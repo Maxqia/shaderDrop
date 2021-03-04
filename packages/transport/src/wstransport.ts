@@ -7,6 +7,8 @@ import {FutureValue, FutureEvent} from '@shaderdrop/event';
 import {Transport, MessageType} from './transport';
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0"; // HACK : ignore self signed certificate
+const default_url = "wss://shaderdrop.com/websocket/";
+//const default_url = "wss://127.0.0.1:8443";
 
 class WebSocketIDTransport extends Transport {
   id: string;
@@ -55,7 +57,7 @@ export default class WebSocketTransport extends Transport {
   connect(url?: string): Promise<WebSocket.OpenEvent> {
     if (typeof url === 'undefined') {
       if (typeof location === 'undefined') {
-        url = "wss://shaderdrop.com/websocket/";
+        url = default_url;
       } else { // try to build url from location
         if (location.protocol === "https:") {
           url = "wss:";

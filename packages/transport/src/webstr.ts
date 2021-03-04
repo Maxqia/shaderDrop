@@ -2,11 +2,6 @@
 import {BinMsgType} from './transport';
 import WebRTCTransport from './rtctransport';
 
-import {ReadableStream, WritableStream, TransformStream} from './wsfill';
-import { createReadableStreamWrapper } from '@mattiasbuelens/web-streams-adapter';
-
-const toPolyfillReadable = createReadableStreamWrapper(ReadableStream);
-
 /* Web-Browser based Streams */
 
 export function createWritableStream(transport: WebRTCTransport) : WritableStream {
@@ -64,10 +59,6 @@ export function createReadableStream(transport: WebRTCTransport) : ReadableStrea
     },
   }, new ByteLengthQueuingStrategy({ highWaterMark: 16384 })); // 16KiB queue
   return stream;
-}
-
-export function fromBlob(file) : ReadableStream {
-  return toPolyfillReadable(file.stream()) as ReadableStream;
 }
 
 export type ProgCallback = (percentDone: number, bps: number) => null;
